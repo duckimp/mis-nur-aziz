@@ -15,7 +15,7 @@ import Layout from '../layouts/Layout.astro';
 		<div class="container">
 			<div class="profile-grid">
 				<div class="profile-img">
-					<div class="image-placeholder-square"></div>
+					<img src="/images/profil-sekolah.jpg" alt="Sejarah MIS Nur Aziz" class="profile-img-actual" />
 				</div>
 				<div class="profile-content">
 					<h2>Sejarah Singkat</h2>
@@ -107,11 +107,10 @@ import Layout from '../layouts/Layout.astro';
 		align-items: center;
 	}
 
-	.image-placeholder-square {
+	.profile-img-actual {
 		width: 100%;
-		aspect-ratio: 1;
-		background: #e2e8f0;
 		border-radius: 2rem;
+		box-shadow: var(--shadow-lg);
 	}
 
 	.profile-content h2 {

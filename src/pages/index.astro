@@ -1,8 +1,30 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const news = [
+  {
+    date: '23 April 2026',
+    title: 'Penerimaan Peserta Didik Baru Tahun Ajaran 2025/2026',
+    desc: 'Pendaftaran siswa baru kini telah dibuka. Mari bergabung bersama keluarga besar MIS Nur Aziz...',
+    image: '/images/news/ppdb.jpg'
+  },
+  {
+    date: '30 Maret 2026',
+    title: 'Prestasi Juara 1 Lomba Tahfidz',
+    desc: 'Selamat kepada ananda Muhammad Labib Ikhwan Zain yang telah meraih prestasi membanggakan...',
+    image: '/images/news/tahfidz.jpg'
+  },
+  {
+    date: '02 Maret 2026',
+    title: 'Kegiatan Ramadhan Ceria: Menumbuhkan Cinta Al-Qur\'an',
+    desc: 'MIS Nur Aziz mengadakan serangkaian kegiatan selama bulan suci Ramadhan untuk menguatkan spiritualitas siswa...',
+    image: '/images/news/ramadhan.jpg'
+  }
+];
 ---
 
 <Layout title="Beranda">
+	<!-- ... Hero and Visi Sections stay the same ... -->
 	<!-- Hero Section -->
 	<section class="hero section">
 		<div class="container hero-container animate-up">
@@ -42,30 +64,18 @@ import Layout from '../layouts/Layout.astro';
 				<a href="#" class="view-all">Lihat Semua &rarr;</a>
 			</div>
 			<div class="news-grid">
-				<article class="news-card">
-					<div class="news-img"></div>
-					<div class="news-content">
-						<span class="news-date">23 April 2026</span>
-						<h3>Penerimaan Peserta Didik Baru Tahun Ajaran 2025/2026</h3>
-						<p>Pendaftaran siswa baru kini telah dibuka. Mari bergabung bersama keluarga besar MIS Nur Aziz...</p>
-					</div>
-				</article>
-				<article class="news-card">
-					<div class="news-img"></div>
-					<div class="news-content">
-						<span class="news-date">30 Maret 2026</span>
-						<h3>Prestasi Juara 1 Lomba Tahfidz</h3>
-						<p>Selamat kepada ananda Muhammad Labib Ikhwan Zain yang telah meraih prestasi membanggakan...</p>
-					</div>
-				</article>
-				<article class="news-card">
-					<div class="news-img"></div>
-					<div class="news-content">
-						<span class="news-date">02 Maret 2026</span>
-						<h3>Kegiatan Ramadhan Ceria: Menumbuhkan Cinta Al-Qur'an</h3>
-						<p>MIS Nur Aziz mengadakan serangkaian kegiatan selama bulan suci Ramadhan untuk menguatkan spiritualitas siswa...</p>
-					</div>
-				</article>
+				{news.map(item => (
+					<article class="news-card">
+						<div class="news-img-container">
+							<img src={item.image} alt={item.title} class="news-img-actual-card" />
+						</div>
+						<div class="news-content">
+							<span class="news-date">{item.date}</span>
+							<h3>{item.title}</h3>
+							<p>{item.desc}</p>
+						</div>
+					</article>
+				))}
 			</div>
 		</div>
 	</section>
@@ -231,9 +241,20 @@ import Layout from '../layouts/Layout.astro';
 		box-shadow: var(--shadow-lg);
 	}
 
-	.news-img {
+	.news-img-container {
 		height: 200px;
-		background: #e2e8f0;
+		overflow: hidden;
+	}
+
+	.news-img-actual-card {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: var(--transition);
+	}
+
+	.news-card:hover .news-img-actual-card {
+		transform: scale(1.1);
 	}
 
 	.news-content {
