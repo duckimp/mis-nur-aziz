@@ -1,0 +1,291 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Beranda">
+	<!-- Hero Section -->
+	<section class="hero section">
+		<div class="container hero-container animate-up">
+			<div class="hero-content">
+				<span class="hero-badge">SELAMAT DATANG DI MIS NUR - AZIZ</span>
+				<h1>Mencetak Generasi yang Berakhlak</h1>
+				<p>Wujudkan masa depan cemerlang putra-putri Anda dengan pendidikan berkualitas yang mengintegrasikan ilmu pengetahuan dan nilai-nilai keagamaan.</p>
+				<div class="hero-btns">
+					<a href="/ppdb" class="btn btn-primary">Info Pendaftaran</a>
+					<a href="/profil" class="btn glass" style="color: var(--primary);">Pelajari Lebih Lanjut</a>
+				</div>
+			</div>
+			<div class="hero-image">
+				<img src="/images/hero.jpg" alt="MI Nur Aziz" class="hero-img-actual" />
+				<div class="glass-box">Unggul & Berakhlak</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Visi Section -->
+	<section class="visi section">
+		<div class="container text-center">
+			<h2 class="section-title">Visi Kami</h2>
+			<div class="visi-card glass animate-up">
+				<p class="visi-text">
+					"Terwujudnya Generasi yang ber-Akhlak, ber-Imtaq, serta Berwawasan Lingkungan."
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- Berita Section -->
+	<section class="berita section" style="background: #fff;">
+		<div class="container">
+			<div class="section-header">
+				<h2 class="section-title">Berita Terbaru</h2>
+				<a href="#" class="view-all">Lihat Semua &rarr;</a>
+			</div>
+			<div class="news-grid">
+				<article class="news-card">
+					<div class="news-img"></div>
+					<div class="news-content">
+						<span class="news-date">23 April 2026</span>
+						<h3>Penerimaan Peserta Didik Baru Tahun Ajaran 2025/2026</h3>
+						<p>Pendaftaran siswa baru kini telah dibuka. Mari bergabung bersama keluarga besar MIS Nur Aziz...</p>
+					</div>
+				</article>
+				<article class="news-card">
+					<div class="news-img"></div>
+					<div class="news-content">
+						<span class="news-date">30 Maret 2026</span>
+						<h3>Prestasi Juara 1 Lomba Tahfidz</h3>
+						<p>Selamat kepada ananda Muhammad Labib Ikhwan Zain yang telah meraih prestasi membanggakan...</p>
+					</div>
+				</article>
+				<article class="news-card">
+					<div class="news-img"></div>
+					<div class="news-content">
+						<span class="news-date">02 Maret 2026</span>
+						<h3>Kegiatan Ramadhan Ceria: Menumbuhkan Cinta Al-Qur'an</h3>
+						<p>MIS Nur Aziz mengadakan serangkaian kegiatan selama bulan suci Ramadhan untuk menguatkan spiritualitas siswa...</p>
+					</div>
+				</article>
+			</div>
+		</div>
+	</section>
+
+	<!-- CTA Section -->
+	<section class="cta-section section">
+		<div class="container">
+			<div class="cta-card">
+				<h2>Siap Bergabung Bersama Kami?</h2>
+				<p>Daftarkan putra-putri Anda sekarang dan jadilah bagian dari perjalanan menuju generasi Qur'ani.</p>
+				<a href="/ppdb" class="btn btn-accent">Daftar Sekarang</a>
+			</div>
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.hero {
+		min-height: 90vh;
+		display: flex;
+		align-items: center;
+		padding-top: 120px;
+	}
+
+	.hero-container {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 4rem;
+		align-items: center;
+	}
+
+	.hero-badge {
+		background: #d1fae5;
+		color: var(--primary);
+		padding: 0.5rem 1rem;
+		border-radius: 2rem;
+		font-weight: 600;
+		font-size: 0.875rem;
+		margin-bottom: 1.5rem;
+		display: inline-block;
+	}
+
+	.hero h1 {
+		font-size: 3.5rem;
+		margin-bottom: 1.5rem;
+		color: var(--text-main);
+	}
+
+	.hero p {
+		font-size: 1.25rem;
+		color: var(--text-muted);
+		margin-bottom: 2.5rem;
+		max-width: 600px;
+	}
+
+	.hero-btns {
+		display: flex;
+		gap: 1rem;
+	}
+
+	.hero-image {
+		position: relative;
+	}
+
+	.hero-img-actual {
+		width: 100%;
+		border-radius: 2rem;
+		box-shadow: var(--shadow-lg);
+		transition: var(--transition);
+	}
+
+	.hero-img-actual:hover {
+		transform: scale(1.02);
+	}
+
+	.glass-box {
+		position: absolute;
+		bottom: 2rem;
+		right: 2rem;
+		background: rgba(255, 255, 255, 0.2);
+		backdrop-filter: blur(10px);
+		padding: 1rem 2rem;
+		border-radius: 1rem;
+		color: white;
+		font-weight: 700;
+		border: 1px solid rgba(255, 255, 255, 0.3);
+	}
+
+	.section-title {
+		text-align: center;
+		font-size: 2.5rem;
+		margin-bottom: 3rem;
+		position: relative;
+	}
+
+	.section-title::after {
+		content: '';
+		position: absolute;
+		bottom: -10px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 60px;
+		height: 4px;
+		background: var(--primary);
+		border-radius: 2px;
+	}
+
+	.text-center { text-align: center; }
+
+	.visi-card {
+		padding: 4rem;
+		border-radius: 2rem;
+		max-width: 800px;
+		margin: 0 auto;
+	}
+
+	.visi-text {
+		font-size: 1.5rem;
+		font-style: italic;
+		font-family: 'Outfit', sans-serif;
+		color: var(--primary);
+		font-weight: 500;
+	}
+
+	.section-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 3rem;
+	}
+
+	.section-header .section-title {
+		margin-bottom: 0;
+		text-align: left;
+	}
+
+	.section-header .section-title::after {
+		left: 0;
+		transform: none;
+	}
+
+	.view-all {
+		color: var(--primary);
+		font-weight: 600;
+	}
+
+	.news-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 2rem;
+	}
+
+	.news-card {
+		background: var(--white);
+		border-radius: 1.5rem;
+		overflow: hidden;
+		box-shadow: var(--shadow-md);
+		transition: var(--transition);
+	}
+
+	.news-card:hover {
+		transform: translateY(-10px);
+		box-shadow: var(--shadow-lg);
+	}
+
+	.news-img {
+		height: 200px;
+		background: #e2e8f0;
+	}
+
+	.news-content {
+		padding: 1.5rem;
+	}
+
+	.news-date {
+		color: var(--text-muted);
+		font-size: 0.875rem;
+		margin-bottom: 0.5rem;
+		display: block;
+	}
+
+	.news-card h3 {
+		font-size: 1.25rem;
+		margin-bottom: 1rem;
+	}
+
+	.cta-card {
+		background: linear-gradient(135deg, var(--primary), var(--secondary));
+		color: white;
+		padding: 5rem;
+		border-radius: 2.5rem;
+		text-align: center;
+	}
+
+	.cta-card h2 {
+		font-size: 3rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.cta-card p {
+		font-size: 1.25rem;
+		margin-bottom: 2.5rem;
+		opacity: 0.9;
+	}
+
+	@media (max-width: 992px) {
+		.hero-container {
+			grid-template-columns: 1fr;
+			text-align: center;
+		}
+		.hero-btns {
+			justify-content: center;
+		}
+		.hero h1 { font-size: 2.5rem; }
+		.news-grid { grid-template-columns: 1fr 1fr; }
+	}
+
+	@media (max-width: 768px) {
+		.news-grid { grid-template-columns: 1fr; }
+		.cta-card { padding: 3rem 1.5rem; }
+		.cta-card h2 { font-size: 2rem; }
+	}
+</style>

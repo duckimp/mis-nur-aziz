@@ -1,0 +1,130 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const teachers = [
+  { name: "Muji As'ari, S.HI., M.Pd.I", role: 'Kepala Madrasah', image: '#' },
+  { name: 'Yuyun Novi Ikawati, S.Pd', role: 'Guru Kelas 1', image: '#' },
+  { name: 'Sukartini, S.Pd.I', role: 'Guru Kelas 2', image: '#' },
+  { name: "Ana Farida, S.Pd.I", role: 'Guru Kelas 3', image: '#' },
+  { name: "Mar'ah Rohmatul Ummah, S.Pd", role: 'Guru Kelas 4', image: '#' },
+  { name: 'Hartini Zubaidah, S.Pd.I', role: 'Guru Kelas 5', image: '#' },
+  { name: 'Holila, S.Pd.I', role: 'Guru Kelas 6', image: '#' },
+  { name: 'Masfin Khoirona, S.Pd.I', role: 'Guru Agama Islam', image: '#' },
+  { name: 'Siti Saudah, S.Pd', role: 'Guru Olahraga', image: '#' },
+  { name: 'Andi Mariono', role: 'Tata Usaha', image: '#' },
+];
+---
+
+<Layout title="Daftar Guru & Staff">
+	<section class="page-header section">
+		<div class="container animate-up">
+			<span class="badge">Tenaga Pendidik</span>
+			<h1>Guru & Staff Kami</h1>
+			<p>Dibimbing oleh tenaga pendidik profesional yang berkomitmen dalam mendidik dengan hati.</p>
+		</div>
+	</section>
+
+	<section class="teachers section">
+		<div class="container">
+			<div class="teacher-grid">
+				{teachers.map(teacher => (
+					<div class="teacher-card animate-up">
+						<div class="teacher-img">
+							<div class="image-placeholder-portrait">
+								<span class="initials">{teacher.name.charAt(0)}</span>
+							</div>
+						</div>
+						<div class="teacher-info">
+							<h3>{teacher.name}</h3>
+							<p>{teacher.role}</p>
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.page-header {
+		background: linear-gradient(rgba(5, 150, 105, 0.05), rgba(5, 150, 105, 0.05));
+		padding-top: 150px;
+		text-align: center;
+	}
+
+	.badge {
+		color: var(--primary);
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 2px;
+		font-size: 0.875rem;
+		margin-bottom: 1rem;
+		display: block;
+	}
+
+	.page-header h1 {
+		font-size: 3.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.teacher-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+		gap: 3rem;
+	}
+
+	.teacher-card {
+		text-align: center;
+		transition: var(--transition);
+	}
+
+	.teacher-card:hover {
+		transform: translateY(-10px);
+	}
+
+	.teacher-img {
+		width: 100%;
+		aspect-ratio: 3/4;
+		margin-bottom: 1.5rem;
+		border-radius: 1.5rem;
+		overflow: hidden;
+		background: #e2e8f0;
+		position: relative;
+	}
+
+	.image-placeholder-portrait {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+	}
+
+	.initials {
+		font-size: 3rem;
+		font-weight: 800;
+		color: var(--primary);
+		opacity: 0.3;
+	}
+
+	.teacher-info h3 {
+		font-size: 1.25rem;
+		margin-bottom: 0.5rem;
+		color: var(--text-main);
+	}
+
+	.teacher-info p {
+		color: var(--primary);
+		font-weight: 600;
+		font-size: 0.95rem;
+	}
+
+	@media (max-width: 768px) {
+		.page-header h1 { font-size: 2.5rem; }
+		.teacher-grid {
+			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+			gap: 2rem;
+		}
+	}
+</style>

@@ -1,0 +1,232 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const galleryItems = [
+  { title: 'Kegiatan ANBK', category: 'Akademik', image: '/images/gallery/kbm.jpg' },
+  { title: 'Lomba Tahfidz Al-Qur\'an', category: 'Prestasi', image: '/images/gallery/tahfidz.jpg' },
+  { title: 'Ekstrakurikuler Pramuka', category: 'Kegiatan', image: '/images/gallery/pramuka.jpg' },
+  { title: 'Pelatihan Drum Band', category: 'Religius', image: '/images/gallery/drumband.jpg' },
+  { title: 'Outbound & Edukasi Alam', category: 'Kegiatan', image: '/images/gallery/outbound.jpg' },
+  { title: 'Wisuda Purna Siswa', category: 'Acara', image: '/images/gallery/wisuda.jpg' },
+];
+---
+
+<Layout title="Galeri Foto">
+	<section class="page-header section">
+		<div class="container animate-up">
+			<span class="badge">Dokumentasi</span>
+			<h1>Galeri Kegiatan</h1>
+			<p>Momen-momen berharga dan aktivitas seru siswa-siswi MI Nur Aziz.</p>
+		</div>
+	</section>
+
+	<section class="gallery section">
+		<div class="container">
+			<div class="gallery-grid">
+				{galleryItems.map((item, index) => (
+					<div class="gallery-item animate-up" style={`animation-delay: ${index * 0.1}s`}>
+						<div class="gallery-img-container" data-index={index}>
+							<img src={item.image} alt={item.title} class="gallery-img" />
+							<div class="gallery-overlay">
+								<span class="category">{item.category}</span>
+								<h3>{item.title}</h3>
+								<button class="view-btn">Lihat Foto</button>
+							</div>
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+	</section>
+
+	<!-- Lightbox -->
+	<div id="lightbox" class="lightbox">
+		<span class="close-lightbox">&times;</span>
+		<div class="lightbox-content">
+			<img id="lightbox-img" src="" alt="Gallery Preview" />
+			<div id="lightbox-caption"></div>
+		</div>
+	</div>
+</Layout>
+
+<style>
+	.page-header {
+		background: linear-gradient(rgba(5, 150, 105, 0.05), rgba(5, 150, 105, 0.05));
+		padding-top: 150px;
+		text-align: center;
+	}
+
+	.badge {
+		color: var(--primary);
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 2px;
+		font-size: 0.875rem;
+		margin-bottom: 1rem;
+		display: block;
+	}
+
+	.page-header h1 {
+		font-size: 3.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.gallery-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 2rem;
+	}
+
+	.gallery-item {
+		border-radius: 1.5rem;
+		overflow: hidden;
+		position: relative;
+		aspect-ratio: 1;
+		cursor: pointer;
+	}
+
+	.gallery-img-container {
+		width: 100%;
+		height: 100%;
+	}
+
+	.gallery-img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: var(--transition);
+	}
+
+	.gallery-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(to top, rgba(5, 150, 105, 0.9), transparent);
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		padding: 2rem;
+		opacity: 0;
+		transition: var(--transition);
+	}
+
+	.gallery-item:hover .gallery-overlay {
+		opacity: 1;
+	}
+
+	.gallery-item:hover .gallery-img {
+		transform: scale(1.1);
+	}
+
+	.gallery-overlay h3 {
+		color: white;
+		font-size: 1.25rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.gallery-overlay .category {
+		color: rgba(255, 255, 255, 0.8);
+		font-size: 0.875rem;
+		font-weight: 600;
+		margin-bottom: 0.5rem;
+	}
+
+	.view-btn {
+		background: white;
+		color: var(--primary);
+		border: none;
+		padding: 0.5rem 1rem;
+		border-radius: 0.5rem;
+		font-weight: 700;
+		font-size: 0.875rem;
+		align-self: flex-start;
+		margin-top: 1rem;
+	}
+
+	/* Lightbox Styles */
+	.lightbox {
+		display: none;
+		position: fixed;
+		z-index: 2000;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.95);
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+	}
+
+	.lightbox-content {
+		max-width: 90%;
+		max-height: 80%;
+		text-align: center;
+	}
+
+	#lightbox-img {
+		max-width: 100%;
+		max-height: 80vh;
+		border-radius: 1rem;
+		box-shadow: var(--shadow-lg);
+	}
+
+	#lightbox-caption {
+		color: white;
+		margin-top: 1.5rem;
+		font-size: 1.5rem;
+		font-family: 'Outfit', sans-serif;
+	}
+
+	.close-lightbox {
+		position: absolute;
+		top: 30px;
+		right: 40px;
+		color: white;
+		font-size: 40px;
+		font-weight: bold;
+		cursor: pointer;
+	}
+
+	@media (max-width: 992px) {
+		.gallery-grid { grid-template-columns: 1fr 1fr; }
+	}
+
+	@media (max-width: 768px) {
+		.page-header h1 { font-size: 2.5rem; }
+		.gallery-grid { grid-template-columns: 1fr; }
+	}
+</style>
+
+<script>
+	const items = document.querySelectorAll('.gallery-img-container');
+	const lightbox = document.getElementById('lightbox');
+	const caption = document.getElementById('lightbox-caption');
+	const closeBtn = document.querySelector('.close-lightbox');
+
+	items.forEach(item => {
+		item.addEventListener('click', () => {
+			const title = item.querySelector('h3')?.textContent || '';
+			const imgSrc = item.querySelector('img')?.getAttribute('src') || '';
+			const lbImg = document.getElementById('lightbox-img') as HTMLImageElement;
+			
+			if (lightbox && caption && lbImg) {
+				lbImg.src = imgSrc;
+				caption.textContent = title;
+				lightbox.style.display = 'flex';
+			}
+		});
+	});
+
+	closeBtn?.addEventListener('click', () => {
+		if (lightbox) lightbox.style.display = 'none';
+	});
+
+	lightbox?.addEventListener('click', (e) => {
+		if (e.target === lightbox) {
+			lightbox.style.display = 'none';
+		}
+	});
+</script>

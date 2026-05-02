@@ -1,0 +1,243 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Profil Sekolah">
+	<section class="page-header section">
+		<div class="container animate-up">
+			<span class="badge">Tentang Kami</span>
+			<h1>Profil MIS Nur - Aziz</h1>
+			<p>Mengenal lebih dekat sejarah, visi, misi, dan struktur organisasi kami.</p>
+		</div>
+	</section>
+
+	<section class="sejarah section">
+		<div class="container">
+			<div class="profile-grid">
+				<div class="profile-img">
+					<div class="image-placeholder-square"></div>
+				</div>
+				<div class="profile-content">
+					<h2>Sejarah Singkat</h2>
+					<p>MIS Nur Aziz didirikan pada tahun 1962 dengan semangat untuk memberikan pendidikan Islam yang bermutu bagi masyarakat sekitar. Berawal dari [Detail Sejarah Singkat], madrasah ini terus berkembang hingga saat ini menjadi salah satu lembaga pendidikan pilihan utama di wilayah Jl. Panglima Sudirman Gg. VI A.</p>
+					<p>Selama perjalanannya, MIS Nur - Aziz telah meluluskan ribuan alumni yang kini telah berkiprah di berbagai bidang, dengan tetap memegang teguh nilai-nilai keislaman yang diajarkan selama di bangku madrasah.</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="visi-misi section" style="background: var(--white);">
+		<div class="container">
+			<div class="visi-misi-grid">
+				<div class="visi-box animate-up">
+					<h2>Visi</h2>
+					<p>"Terwujudnya Generasi yang ber-Akhlak, ber-Imtaq, serta Berwawasan Lingkungan."</p>
+				</div>
+				<div class="misi-box animate-up">
+					<h2>Misi</h2>
+					<ul>
+						<li>Menyelenggarakan pendidikan yang berorientasi pada pencapaian kompetensi akademik dan non-akademik.</li>
+						<li>Menanamkan nilai-nilai karakter Islami dan pembiasaan ibadah dalam kehidupan sehari-hari.</li>
+						<li>Mengembangkan potensi minat dan bakat siswa melalui kegiatan ekstrakurikuler yang beragam.</li>
+						<li>Menciptakan lingkungan madrasah yang bersih, sehat, aman, dan kondusif untuk belajar.</li>
+						<li>Membangun kerjasama yang harmonis antara madrasah, orang tua, dan masyarakat.</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="struktur section">
+		<div class="container text-center">
+			<h2 class="section-title">Struktur Organisasi</h2>
+			<div class="org-chart glass animate-up">
+				<div class="chart-item principal">
+					<div class="item-role">Kepala Madrasah</div>
+					<div class="item-name">Muji As'ari, S.HI., M.Pd.I</div>
+				</div>
+				<div class="chart-line"></div>
+				<div class="chart-sub-grid">
+					<div class="chart-item">
+						<div class="item-role">Komite Sekolah</div>
+						<div class="item-name">Fauzi Iskandar</div>
+					</div>
+					<div class="chart-item">
+						<div class="item-role">Tata Usaha</div>
+						<div class="item-name">Andi Mariono</div>
+					</div>
+				</div>
+				<div class="chart-line"></div>
+				<div class="chart-row">
+					<div class="chart-item" style="grid-column: span 4;">
+						<div class="item-role">Dewan Guru</div>
+						<div class="item-name">Seluruh Tenaga Pendidik</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.page-header {
+		background: linear-gradient(rgba(5, 150, 105, 0.05), rgba(5, 150, 105, 0.05));
+		padding-top: 150px;
+		text-align: center;
+	}
+
+	.badge {
+		color: var(--primary);
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 2px;
+		font-size: 0.875rem;
+		margin-bottom: 1rem;
+		display: block;
+	}
+
+	.page-header h1 {
+		font-size: 3.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.profile-grid {
+		display: grid;
+		grid-template-columns: 1fr 1.2fr;
+		gap: 4rem;
+		align-items: center;
+	}
+
+	.image-placeholder-square {
+		width: 100%;
+		aspect-ratio: 1;
+		background: #e2e8f0;
+		border-radius: 2rem;
+	}
+
+	.profile-content h2 {
+		font-size: 2.5rem;
+		margin-bottom: 1.5rem;
+		color: var(--primary);
+	}
+
+	.profile-content p {
+		margin-bottom: 1.5rem;
+		font-size: 1.1rem;
+		color: var(--text-muted);
+	}
+
+	.visi-misi-grid {
+		display: grid;
+		grid-template-columns: 1fr 1.5fr;
+		gap: 3rem;
+	}
+
+	.visi-box, .misi-box {
+		padding: 3rem;
+		border-radius: 2rem;
+	}
+
+	.visi-box {
+		background: var(--primary);
+		color: white;
+	}
+
+	.visi-box h2 { color: white; margin-bottom: 1.5rem; }
+	.misi-box h2 { color: var(--primary); margin-bottom: 1.5rem; }
+
+	.misi-box {
+		background: #f1f5f9;
+	}
+
+	.misi-box ul {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.misi-box ul li {
+		position: relative;
+		padding-left: 1.5rem;
+		color: var(--text-muted);
+	}
+
+	.misi-box ul li::before {
+		content: '✓';
+		position: absolute;
+		left: 0;
+		color: var(--primary);
+		font-weight: bold;
+	}
+
+	.section-title {
+		text-align: center;
+		font-size: 2.5rem;
+		margin-bottom: 3rem;
+		position: relative;
+	}
+
+	.org-chart {
+		padding: 3rem;
+		border-radius: 2rem;
+		max-width: 1000px;
+		margin: 0 auto;
+	}
+
+	.chart-item {
+		padding: 1.5rem;
+		background: white;
+		border-radius: 1rem;
+		box-shadow: var(--shadow-md);
+		border-top: 4px solid var(--primary);
+		display: inline-block;
+		min-width: 200px;
+	}
+
+	.item-role {
+		font-weight: 700;
+		color: var(--primary);
+		font-size: 0.9rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.item-name {
+		font-weight: 600;
+	}
+
+	.chart-line {
+		width: 2px;
+		height: 30px;
+		background: #cbd5e1;
+		margin: 0 auto;
+	}
+
+	.chart-sub-grid {
+		display: flex;
+		justify-content: center;
+		gap: 2rem;
+	}
+
+	.chart-row {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 1.5rem;
+	}
+
+	.text-center { text-align: center; }
+
+	@media (max-width: 992px) {
+		.profile-grid, .visi-misi-grid {
+			grid-template-columns: 1fr;
+		}
+		.chart-row {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.page-header h1 { font-size: 2.5rem; }
+		.chart-row {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

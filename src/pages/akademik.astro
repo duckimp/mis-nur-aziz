@@ -1,0 +1,212 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const subjects = [
+	{ group: 'Kelompok A (Umum)', items: ['Pendidikan Pancasila', 'Bahasa Indonesia', 'Matematika', 'Ilmu Pengetahuan Alam dan Sosial', 'Seni Budaya dan Prakarya', 'Pendidikan Jasmani, Olahraga & Kesehatan', 'Bahasa Inggris', 'Muatan Lokal (Bahasa Jawa)'] },
+	{ group: 'Kelompok B (Agama)', items: ['Aqidah Akhlak', 'Al-quran & Hadits', 'Fiqih', 'Bahasa Arab', 'Sejarah Kebudayaan Islam'] },
+	{ group: 'Program Unggulan', items: ['Mabits', 'TPQ',] },
+];
+---
+
+<Layout title="Informasi Akademik">
+	<section class="page-header section">
+		<div class="container animate-up">
+			<span class="badge">Akademik</span>
+			<h1>Kurikulum & Pembelajaran</h1>
+			<p>Sistem pendidikan berkualitas yang mengacu pada standar nasional dengan penguatan karakter religius.</p>
+		</div>
+	</section>
+
+	<section class="kurikulum section">
+		<div class="container">
+			<div class="section-header">
+				<h2 class="section-title">Struktur Kurikulum</h2>
+				<p>Kami menggunakan Kurikulum Merdeka yang disempurnakan dengan kurikulum khas Madrasah (Kemenag) untuk memastikan keseimbangan antara ilmu umum dan ilmu agama.</p>
+			</div>
+
+			<div class="subjects-grid">
+				{subjects.map(group => (
+					<div class="subject-card glass animate-up">
+						<h3>{group.group}</h3>
+						<ul>
+							{group.items.map(item => (
+								<li>{item}</li>
+							))}
+						</ul>
+					</div>
+				))}
+			</div>
+		</div>
+	</section>
+
+	<section class="downloads section" style="background: var(--white);">
+		<div class="container">
+			<h2 class="section-title">Unduh Dokumen</h2>
+			<div class="download-grid">
+				<div class="download-item">
+					<div class="icon">📄</div>
+					<div class="info">
+						<h4>Kalender Akademik 2024/2025</h4>
+						<p>Format: PDF | Ukuran: 1.2 MB</p>
+					</div>
+					<a href="/pdf/kalender-akademik.pdf" class="btn btn-primary" download>Unduh</a>
+				</div>
+				<div class="download-item">
+					<div class="icon">📄</div>
+					<div class="info">
+						<h4>Panduan Siswa & Tata Tertib</h4>
+						<p>Format: PDF | Ukuran: 2.5 MB</p>
+					</div>
+					<a href="/pdf/panduan-siswa.pdf" class="btn btn-primary" download>Unduh</a>
+				</div>
+				<div class="download-item">
+					<div class="icon">📄</div>
+					<div class="info">
+						<h4>Brosur Sekolah</h4>
+						<p>Format: PDF | Ukuran: 4.8 MB</p>
+					</div>
+					<a href="/pdf/brosur-sekolah.pdf" class="btn btn-primary" download>Unduh</a>
+				</div>
+			</div>
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.page-header {
+		background: linear-gradient(rgba(5, 150, 105, 0.05), rgba(5, 150, 105, 0.05));
+		padding-top: 150px;
+		text-align: center;
+	}
+
+	.badge {
+		color: var(--primary);
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 2px;
+		font-size: 0.875rem;
+		margin-bottom: 1rem;
+		display: block;
+	}
+
+	.page-header h1 {
+		font-size: 3.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.section-header {
+		text-align: center;
+		max-width: 700px;
+		margin: 0 auto 4rem;
+	}
+
+	.section-title {
+		font-size: 2.5rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.subjects-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 2rem;
+	}
+
+	.subject-card {
+		padding: 2.5rem;
+		border-radius: 2rem;
+		transition: var(--transition);
+	}
+
+	.subject-card:hover {
+		transform: translateY(-5px);
+		border-color: var(--primary);
+	}
+
+	.subject-card h3 {
+		color: var(--primary);
+		margin-bottom: 1.5rem;
+		font-size: 1.5rem;
+	}
+
+	.subject-card ul {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.subject-card ul li {
+		padding-left: 1.5rem;
+		position: relative;
+		color: var(--text-muted);
+	}
+
+	.subject-card ul li::before {
+		content: '•';
+		position: absolute;
+		left: 0;
+		color: var(--primary);
+		font-weight: bold;
+	}
+
+	.download-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		gap: 2rem;
+		margin-top: 3rem;
+	}
+
+	.download-item {
+		display: flex;
+		align-items: center;
+		gap: 1.5rem;
+		padding: 2rem;
+		background: #f8fafc;
+		border-radius: 1.5rem;
+		border: 1px solid #e2e8f0;
+		transition: var(--transition);
+	}
+
+	.download-item:hover {
+		border-color: var(--primary);
+		box-shadow: var(--shadow-md);
+	}
+
+	.download-item .icon {
+		font-size: 2.5rem;
+		background: white;
+		width: 60px;
+		height: 60px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 1rem;
+		box-shadow: var(--shadow-sm);
+	}
+
+	.download-item .info {
+		flex: 1;
+	}
+
+	.download-item .info h4 {
+		font-size: 1.1rem;
+		margin-bottom: 0.25rem;
+	}
+
+	.download-item .info p {
+		font-size: 0.875rem;
+		color: var(--text-muted);
+	}
+
+	@media (max-width: 992px) {
+		.subjects-grid {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.subjects-grid {
+			grid-template-columns: 1fr;
+		}
+		.page-header h1 { font-size: 2.5rem; }
+	}
+</style>

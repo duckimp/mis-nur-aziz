@@ -1,0 +1,218 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="PPDB Online">
+	<section class="page-header section">
+		<div class="container animate-up">
+			<span class="badge">Pendaftaran</span>
+			<h1>PPDB Tahun Ajaran 2026/2027</h1>
+			<p>Bergabunglah bersama kami untuk mencetak generasi yang cerdas dan berakhlakul karimah.</p>
+		</div>
+	</section>
+
+	<section class="ppdb-info section">
+		<div class="container">
+			<div class="ppdb-grid">
+				<div class="info-content animate-up">
+					<h2>Prosedur Pendaftaran</h2>
+					<div class="steps">
+						<div class="step">
+							<div class="step-num">1</div>
+							<div class="step-text">
+								<h4>Isi Formulir</h4>
+								<p>Scan barcode di samping atau klik tombol daftar untuk mengisi formulir online.</p>
+							</div>
+						</div>
+						<div class="step">
+							<div class="step-num">2</div>
+							<div class="step-text">
+								<h4>Lengkapi Berkas (Scan Bagi yang Online)</h4>
+								<p>Siapkan scan KK, scan Akta Kelahiran, dan scan PKH/KIP/PIP/Pendalungan (jika ada).</p>
+							</div>
+						</div>
+						<div class="step">
+							<div class="step-num">3</div>
+							<div class="step-text">
+								<h4>Observasi Siswa</h4>
+								<p>Siswa akan mengikuti observasi kesiapan belajar dan wawancara orang tua.</p>
+							</div>
+						</div>
+						<div class="step">
+							<div class="step-num">4</div>
+							<div class="step-text">
+								<h4>Daftar Ulang</h4>
+								<p>Melakukan registrasi ulang setelah dinyatakan diterima di MIS Nur - Aziz.</p>
+							</div>
+						</div>
+					</div>
+					<a href="#" class="btn btn-primary" style="margin-top: 2rem;">Buka Formulir Online</a>
+				</div>
+				<div class="barcode-container animate-up">
+					<div class="barcode-card glass">
+						<h3>Scan Barcode Pendaftaran</h3>
+						<div class="barcode-img">
+							<img src="/images/barcode.png" alt="Barcode Pendaftaran" class="barcode-actual" />
+						</div>
+						<p class="barcode-hint">Arahkan kamera ponsel Anda ke barcode di atas untuk membuka link formulir secara otomatis.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="faq section" style="background: var(--white);">
+		<div class="container">
+			<h2 class="section-title">Pertanyaan Umum (FAQ)</h2>
+			<div class="faq-grid">
+				<div class="faq-item glass">
+					<h4>Kapan pendaftaran dibuka?</h4>
+					<p>Pendaftaran gelombang pertama dibuka mulai Januari hingga Maret 2026.</p>
+				</div>
+				<div class="faq-item glass">
+					<h4>Apa saja syarat administrasinya?</h4>
+					<p>FC Akta Kelahiran, FC Kartu Keluarga, dan Pas Foto 3x4 (2 lembar).</p>
+				</div>
+				<div class="faq-item glass">
+					<h4>Apakah ada tes masuk?</h4>
+					<p>Bukan tes akademik, melainkan observasi kesiapan belajar anak.</p>
+				</div>
+			</div>
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.page-header {
+		background: linear-gradient(rgba(5, 150, 105, 0.05), rgba(5, 150, 105, 0.05));
+		padding-top: 150px;
+		text-align: center;
+	}
+
+	.badge {
+		color: var(--primary);
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 2px;
+		font-size: 0.875rem;
+		margin-bottom: 1rem;
+		display: block;
+	}
+
+	.page-header h1 {
+		font-size: 3.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.ppdb-grid {
+		display: grid;
+		grid-template-columns: 1.2fr 1fr;
+		gap: 4rem;
+		align-items: center;
+	}
+
+	.info-content h2 {
+		font-size: 2.5rem;
+		margin-bottom: 2rem;
+		color: var(--primary);
+	}
+
+	.steps {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	.step {
+		display: flex;
+		gap: 1.5rem;
+		align-items: flex-start;
+	}
+
+	.step-num {
+		width: 40px;
+		height: 40px;
+		background: var(--primary);
+		color: white;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 700;
+		flex-shrink: 0;
+	}
+
+	.step-text h4 {
+		font-size: 1.25rem;
+		margin-bottom: 0.25rem;
+	}
+
+	.step-text p {
+		color: var(--text-muted);
+	}
+
+	.barcode-container {
+		display: flex;
+		justify-content: center;
+	}
+
+	.barcode-card {
+		padding: 3rem;
+		border-radius: 2rem;
+		text-align: center;
+		width: 100%;
+		max-width: 400px;
+	}
+
+	.barcode-card h3 {
+		margin-bottom: 1.5rem;
+		font-size: 1.25rem;
+	}
+
+	.barcode-img {
+		background: white;
+		padding: 1.5rem;
+		border-radius: 1rem;
+		margin-bottom: 1.5rem;
+		box-shadow: var(--shadow-sm);
+	}
+
+	.barcode-actual {
+		width: 100%;
+		height: auto;
+		display: block;
+	}
+
+	.barcode-hint {
+		font-size: 0.875rem;
+		color: var(--text-muted);
+	}
+
+	.faq-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 2rem;
+		margin-top: 3rem;
+	}
+
+	.faq-item {
+		padding: 2rem;
+		border-radius: 1.5rem;
+	}
+
+	.faq-item h4 {
+		color: var(--primary);
+		margin-bottom: 1rem;
+	}
+
+	@media (max-width: 992px) {
+		.ppdb-grid, .faq-grid {
+			grid-template-columns: 1fr;
+		}
+		.barcode-container { order: -1; }
+	}
+
+	@media (max-width: 768px) {
+		.page-header h1 { font-size: 2.5rem; }
+	}
+</style>

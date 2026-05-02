@@ -1,0 +1,169 @@
+---
+const navItems = [
+  { name: 'Beranda', href: '/' },
+  { name: 'Profil', href: '/profil' },
+  { name: 'Akademik', href: '/akademik' },
+  { name: 'Guru & Staff', href: '/guru' },
+  { name: 'Galeri', href: '/galeri' },
+  { name: 'PPDB', href: '/ppdb' },
+  { name: 'Kontak', href: '/kontak' },
+];
+---
+
+<header class="navbar glass">
+  <div class="container nav-container">
+    <a href="/" class="logo">
+      <span class="logo-icon">MIS</span>
+      <span class="logo-text">NUR - AZIZ</span>
+    </a>
+
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="nav-links" id="nav-links">
+      {navItems.map(item => (
+        <a href={item.href} class="nav-item">{item.name}</a>
+      ))}
+      <a href="/ppdb" class="btn btn-primary nav-cta">Daftar Sekarang</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    transition: var(--transition);
+  }
+
+  .nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary);
+  }
+
+  .logo-icon {
+    background: var(--primary);
+    color: var(--white);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .nav-item {
+    font-weight: 500;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    position: relative;
+  }
+
+  .nav-item:hover, .nav-item.active {
+    color: var(--primary);
+  }
+
+  .nav-item::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary);
+    transition: var(--transition);
+  }
+
+  .nav-item:hover::after {
+    width: 100%;
+  }
+
+  .mobile-menu-btn {
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .mobile-menu-btn span {
+    display: block;
+    width: 25px;
+    height: 2px;
+    background: var(--primary);
+    transition: var(--transition);
+  }
+
+  @media (max-width: 992px) {
+    .nav-links {
+      position: absolute;
+      top: 80px;
+      left: 0;
+      right: 0;
+      background: var(--white);
+      flex-direction: column;
+      padding: 2rem;
+      gap: 1.5rem;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-150%);
+      transition: var(--transition);
+      opacity: 0;
+    }
+
+    .nav-links.active {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .mobile-menu-btn {
+      display: flex;
+    }
+
+    .nav-cta {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
+
+<script>
+  const btn = document.getElementById('mobile-menu-btn');
+  const nav = document.getElementById('nav-links');
+
+  btn?.addEventListener('click', () => {
+    nav?.classList.toggle('active');
+    btn.classList.toggle('active');
+  });
+
+  // Highlight active link
+  const currentPath = window.location.pathname;
+  const navLinks = document.querySelectorAll('.nav-item');
+  navLinks.forEach(link => {
+    if (link.getAttribute('href') === currentPath) {
+      link.classList.add('active');
+    }
+  });
+</script>
