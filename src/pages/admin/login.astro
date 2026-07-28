@@ -3,32 +3,26 @@ import Layout from '../../layouts/Layout.astro';
 ---
 
 <Layout title="Admin Login - MIS Nurul Aziz">
-  <div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-    <div class="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
-      <div class="text-center">
-        <img class="mx-auto h-20 w-auto" src="/images/logo.png" alt="MIS Nurul Aziz" />
-        <h2 class="mt-6 text-3xl font-extrabold text-gray-900">Admin Login</h2>
-        <p class="mt-2 text-sm text-gray-600">Silakan masuk ke dashboard sekolah</p>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <img class="login-logo" src="/images/logo.png" alt="MIS Nurul Aziz" />
+        <h2>Admin Login</h2>
+        <p>Silakan masuk ke dashboard sekolah</p>
       </div>
-      <form class="mt-8 space-y-6" id="loginForm">
-        <div class="rounded-md shadow-sm -space-y-px">
-          <div>
-            <label for="email-address" class="sr-only">Email address</label>
-            <input id="email-address" name="email" type="email" autocomplete="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm" placeholder="Email address" />
-          </div>
-          <div>
-            <label for="password" class="sr-only">Password</label>
-            <input id="password" name="password" type="password" autocomplete="current-password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm" placeholder="Password" />
-          </div>
+      <form id="loginForm">
+        <div class="login-input-group">
+          <label for="email-address">Email</label>
+          <input id="email-address" name="email" type="email" autocomplete="email" required placeholder="Masukkan email" />
+        </div>
+        <div class="login-input-group">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Masukkan password" />
         </div>
 
-        <div id="errorMessage" class="text-red-500 text-sm text-center hidden"></div>
+        <div id="errorMessage" class="error-message hidden"></div>
 
-        <div>
-          <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
-            Masuk
-          </button>
-        </div>
+        <button type="submit" class="login-btn">Masuk</button>
       </form>
     </div>
   </div>
@@ -61,3 +55,109 @@ import Layout from '../../layouts/Layout.astro';
     }
   });
 </script>
+
+<style>
+  .login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    padding: 1rem;
+  }
+
+  .login-card {
+    max-width: 28rem;
+    width: 100%;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+  }
+
+  .login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .login-logo {
+    height: 5rem;
+    width: auto;
+    margin: 0 auto 1.5rem;
+  }
+
+  .login-header h2 {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 0.5rem;
+  }
+
+  .login-header p {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  .login-input-group {
+    margin-bottom: 1rem;
+  }
+
+  .login-input-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.25rem;
+  }
+
+  .login-input-group input {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
+  }
+
+  .login-input-group input:focus {
+    outline: none;
+    border-color: #059669;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+  }
+
+  .error-message {
+    color: #dc2626;
+    font-size: 0.875rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .error-message.hidden {
+    display: none;
+  }
+
+  .login-btn {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0.625rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: white;
+    background: #059669;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .login-btn:hover {
+    background: #047857;
+  }
+
+  .login-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.3);
+  }
+</style>
