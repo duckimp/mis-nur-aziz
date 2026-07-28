@@ -1,14 +1,14 @@
 ---
+---
 import Layout from '../layouts/Layout.astro';
+import { supabase } from '../lib/supabase';
 
-const galleryItems = [
-  { title: 'Kegiatan ANBK', category: 'Akademik', image: '/images/gallery/kbm.jpg' },
-  { title: 'Lomba Tahfidz Al-Qur\'an', category: 'Prestasi', image: '/images/gallery/tahfidz.jpg' },
-  { title: 'Ekstrakurikuler Pramuka', category: 'Kegiatan', image: '/images/gallery/pramuka.jpg' },
-  { title: 'Pelatihan Drum Band', category: 'Religius', image: '/images/gallery/drumband.jpg' },
-  { title: 'Outbound & Edukasi Alam', category: 'Kegiatan', image: '/images/gallery/outbound.jpg' },
-  { title: 'Wisuda Purna Siswa', category: 'Acara', image: '/images/gallery/wisuda.jpg' },
-];
+const { data: galleryData } = await supabase
+  .from('gallery')
+  .select('*')
+  .order('created_at', { ascending: false });
+
+const galleryItems = galleryData || [];
 ---
 
 <Layout title="Galeri Foto">
@@ -26,10 +26,10 @@ const galleryItems = [
 				{galleryItems.map((item, index) => (
 					<div class="gallery-item animate-up" style={`animation-delay: ${index * 0.1}s`}>
 						<div class="gallery-img-container" data-index={index}>
-							<img src={item.image} alt={item.title} class="gallery-img" />
+							<img src={item.image_url} alt={item.category} class="gallery-img" />
 							<div class="gallery-overlay">
 								<span class="category">{item.category}</span>
-								<h3>{item.title}</h3>
+								<h3>{item.category}</h3>
 								<button class="view-btn">Lihat Foto</button>
 							</div>
 						</div>

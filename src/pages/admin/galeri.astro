@@ -1,0 +1,8 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { GalleryManager } from '../../components/admin/GalleryManager';
+---
+
+<AdminLayout title="Manajemen Galeri" activeMenu="Galeri">
+  <GalleryManager client:load />
+</AdminLayout>

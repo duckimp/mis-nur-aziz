@@ -1,26 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { supabase } from '../lib/supabase';
 
-const news = [
-  {
-    date: '23 April 2026',
-    title: 'Penerimaan Peserta Didik Baru Tahun Ajaran 2026/2027',
-    desc: 'Pendaftaran siswa baru kini telah dibuka. Mari bergabung bersama keluarga besar MIS Nur Aziz...',
-    image: '/images/news/ppdb.jpg'
-  },
-  {
-    date: '30 Maret 2026',
-    title: 'Prestasi Juara 3 Lomba Tahfidz',
-    desc: 'Selamat kepada ananda Muhammad Labib Ikhwan Zain yang telah meraih prestasi membanggakan...',
-    image: '/images/news/tahfidz.jpg'
-  },
-  {
-    date: '02 Maret 2026',
-    title: 'Kegiatan Ramadhan Ceria: Menumbuhkan Cinta Al-Qur\'an',
-    desc: 'MIS Nur Aziz mengadakan serangkaian kegiatan selama bulan suci Ramadhan untuk menguatkan spiritualitas siswa...',
-    image: '/images/news/ramadhan.jpg'
-  }
-];
+const { data: newsData } = await supabase
+  .from('news')
+  .select('*')
+  .order('date', { ascending: false })
+  .limit(3);
+
+const news = newsData || [];
 ---
 
 <Layout title="Beranda">
@@ -67,12 +55,12 @@ const news = [
 				{news.map(item => (
 					<article class="news-card">
 						<div class="news-img-container">
-							<img src={item.image} alt={item.title} class="news-img-actual-card" />
+							<img src={item.image_url} alt={item.title} class="news-img-actual-card" />
 						</div>
 						<div class="news-content">
 							<span class="news-date">{item.date}</span>
 							<h3>{item.title}</h3>
-							<p>{item.desc}</p>
+							<p>{item.description}</p>
 						</div>
 					</article>
 				))}
