@@ -354,11 +354,10 @@ export const GalleryManager = () => {
   const [images, setImages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState('');
+  const [tags, setTags] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [userRole, setUserRole] = useState<string>('guru');
-
-  const categories = ['KBM', 'Eskul', 'Wisuda', 'Lainnya'];
 
   useEffect(() => {
     fetchUserRole();
@@ -389,7 +388,7 @@ export const GalleryManager = () => {
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!category || !image) return alert('Pilih kategori dan foto!');
+    if (!category.trim() || !image) return alert('Kategori dan foto wajib diisi!');
     setUploading(true);
     try {
       const fileExt = image.name.split('.').pop();
@@ -397,9 +396,16 @@ export const GalleryManager = () => {
       const { error: uploadError } = await supabase.storage.from('images').upload(filePath, image);
       if (uploadError) throw uploadError;
       const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(filePath);
-      const { error } = await supabase.from('gallery').insert([{ category, image_url: publicUrl }]);
+      
+      // Simpan data kategori dan tags ke Supabase
+      const { error } = await supabase.from('gallery').insert([{ 
+        category: category.trim(), 
+        tags: tags.trim(), 
+        image_url: publicUrl 
+      }]);
+      
       if (error) throw error;
-      setCategory(''); setImage(null);
+      setCategory(''); setTags(''); setImage(null);
       fetchImages();
       alert('Foto berhasil diupload!');
     } catch (error: any) {
@@ -418,15 +424,36 @@ export const GalleryManager = () => {
           Upload Foto Galeri
         </h3>
         <form onSubmit={handleUpload}>
-          <div style={S.formGroup}>
-            <label style={S.label}>
-              <Tag size={13} color="#6b7280" />
-              Kategori Foto
-            </label>
-            <select className="admin-select" style={S.select} value={category} onChange={e => setCategory(e.target.value)} required>
-              <option value="">— Pilih Kategori —</option>
-              {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-            </select>
+          <div className="admin-grid-2">
+            <div style={S.formGroup}>
+              <label style={S.label}>
+                <Tag size={13} color="#6b7280" />
+                Kategori Foto
+              </label>
+              <input 
+                className="admin-input" 
+                style={S.input} 
+                type="text" 
+                value={category} 
+                onChange={e => setCategory(e.target.value)} 
+                placeholder="cth. Upacara, Kelas 6, Pramuka" 
+                required 
+              />
+            </div>
+            <div style={S.formGroup}>
+              <label style={S.label}>
+                <AlertCircle size={13} color="#6b7280" />
+                Tagar / Hashtag (pisahkan dengan koma)
+              </label>
+              <input 
+                className="admin-input" 
+                style={S.input} 
+                type="text" 
+                value={tags} 
+                onChange={e => setTags(e.target.value)} 
+                placeholder="cth. merdeka, kbm, outdoor" 
+              />
+            </div>
           </div>
           <div style={S.formGroup}>
             <label style={S.label}>
@@ -459,29 +486,41 @@ export const GalleryManager = () => {
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1rem' }}>
-            {images.map(img => (
-              <div key={img.id} className="gallery-thumb" style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', aspectRatio: '1', background: '#f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-                <img src={img.image_url} alt={img.category} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                <div className="gallery-overlay" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 55%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0.625rem' }}>
-                  <span style={{ color: 'white', fontSize: '0.72rem', fontWeight: 600, marginBottom: userRole === 'admin' ? '0.375rem' : '0' }}>{img.category}</span>
-                  {userRole === 'admin' ? (
-                    <button
-                      onClick={async () => {
-                        if (confirm('Hapus foto ini?')) {
-                          await supabase.from('gallery').delete().eq('id', img.id);
-                          fetchImages();
-                        }
-                      }}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '6px', padding: '0.3rem 0.5rem', fontSize: '0.72rem', cursor: 'pointer', width: '100%', fontFamily: "'Inter', sans-serif" }}
-                    >
-                      <Trash2 size={11} /> Hapus
-                    </button>
-                  ) : (
-                    <span style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.65rem', fontStyle: 'italic', background: 'rgba(0,0,0,0.3)', padding: '0.2rem', borderRadius: '4px', textAlign: 'center' }}>Admin Only to Delete</span>
-                  )}
+            {images.map(img => {
+              // Parse tags for display
+              const tagList = img.tags 
+                ? img.tags.split(',').map((t: string) => `#${t.trim()}`).join(' ') 
+                : '';
+              
+              return (
+                <div key={img.id} className="gallery-thumb" style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', aspectRatio: '1', background: '#f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                  <img src={img.image_url} alt={img.category} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  <div className="gallery-overlay" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0.625rem' }}>
+                    <span style={{ color: 'white', fontSize: '0.72rem', fontWeight: 700, marginBottom: '0.1rem' }}>{img.category}</span>
+                    {tagList && (
+                      <span style={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.6rem', marginBottom: userRole === 'admin' ? '0.375rem' : '0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {tagList}
+                      </span>
+                    )}
+                    {userRole === 'admin' ? (
+                      <button
+                        onClick={async () => {
+                          if (confirm('Hapus foto ini?')) {
+                            await supabase.from('gallery').delete().eq('id', img.id);
+                            fetchImages();
+                          }
+                        }}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '6px', padding: '0.3rem 0.5rem', fontSize: '0.72rem', cursor: 'pointer', width: '100%', fontFamily: "'Inter', sans-serif" }}
+                      >
+                        <Trash2 size={11} /> Hapus
+                      </button>
+                    ) : (
+                      <span style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.65rem', fontStyle: 'italic', background: 'rgba(0,0,0,0.3)', padding: '0.2rem', borderRadius: '4px', textAlign: 'center' }}>Admin Only to Delete</span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

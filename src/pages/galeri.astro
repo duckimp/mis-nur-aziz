@@ -22,18 +22,30 @@ const galleryItems = galleryData || [];
 	<section class="gallery section">
 		<div class="container">
 			<div class="gallery-grid">
-				{galleryItems.map((item, index) => (
-					<div class="gallery-item animate-up" style={{ animationDelay: `${index * 0.1}s` }}>
-						<div class="gallery-img-container" data-index={index}>
-							<img src={item.image_url} alt={item.category} class="gallery-img" />
-							<div class="gallery-overlay">
-								<span class="category">{item.category}</span>
-								<h3>{item.category}</h3>
-								<button class="view-btn">Lihat Foto</button>
+				{galleryItems.map((item, index) => {
+					const tagList = item.tags
+						? item.tags.split(',').map((t: string) => t.trim()).filter(Boolean)
+						: [];
+					return (
+						<div class="gallery-item animate-up" style={{ animationDelay: `${index * 0.1}s` }}>
+							<div class="gallery-img-container" data-index={index} data-category={item.category} data-tags={item.tags || ''}>
+								<img src={item.image_url} alt={item.category} class="gallery-img" />
+								<div class="gallery-overlay">
+									<span class="category-badge">{item.category}</span>
+									<h3>{item.category}</h3>
+									{tagList.length > 0 && (
+										<div class="tag-list">
+											{tagList.map((tag: string) => (
+												<span class="tag-chip">#{tag}</span>
+											))}
+										</div>
+									)}
+									<button class="view-btn">Lihat Foto</button>
+								</div>
 							</div>
 						</div>
-					</div>
-				))}
+					);
+				})}
 			</div>
 		</div>
 	</section>
@@ -43,7 +55,10 @@ const galleryItems = galleryData || [];
 		<span class="close-lightbox">&times;</span>
 		<div class="lightbox-content">
 			<img id="lightbox-img" src="" alt="Gallery Preview" />
-			<div id="lightbox-caption"></div>
+			<div class="lightbox-footer">
+				<div id="lightbox-caption"></div>
+				<div id="lightbox-tags"></div>
+			</div>
 		</div>
 	</div>
 </Layout>
@@ -125,11 +140,37 @@ const galleryItems = galleryData || [];
 		margin-bottom: 0.5rem;
 	}
 
-	.gallery-overlay .category {
-		color: rgba(255, 255, 255, 0.8);
-		font-size: 0.875rem;
-		font-weight: 600;
+	.category-badge {
+		background: rgba(255, 255, 255, 0.2);
+		backdrop-filter: blur(6px);
+		border: 1px solid rgba(255,255,255,0.3);
+		color: white;
+		font-size: 0.7rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 1px;
+		padding: 0.2rem 0.7rem;
+		border-radius: 999px;
 		margin-bottom: 0.5rem;
+		align-self: flex-start;
+	}
+
+	.tag-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.3rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.tag-chip {
+		background: rgba(5, 150, 105, 0.7);
+		color: white;
+		font-size: 0.65rem;
+		font-weight: 600;
+		padding: 0.15rem 0.5rem;
+		border-radius: 999px;
+		border: 1px solid rgba(255,255,255,0.2);
+		backdrop-filter: blur(4px);
 	}
 
 	.view-btn {
@@ -172,11 +213,35 @@ const galleryItems = galleryData || [];
 		box-shadow: var(--shadow-lg);
 	}
 
+	.lightbox-footer {
+		margin-top: 1.5rem;
+		text-align: center;
+	}
+
 	#lightbox-caption {
 		color: white;
-		margin-top: 1.5rem;
-		font-size: 1.5rem;
+		font-size: 1.4rem;
 		font-family: 'Outfit', sans-serif;
+		font-weight: 700;
+		margin-bottom: 0.6rem;
+	}
+
+	#lightbox-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		justify-content: center;
+	}
+
+	#lightbox-tags .lb-tag {
+		background: rgba(5, 150, 105, 0.75);
+		color: white;
+		font-size: 0.8rem;
+		font-weight: 600;
+		padding: 0.25rem 0.75rem;
+		border-radius: 999px;
+		border: 1px solid rgba(255, 255, 255, 0.25);
+		backdrop-filter: blur(6px);
 	}
 
 	.close-lightbox {
@@ -202,18 +267,37 @@ const galleryItems = galleryData || [];
 <script>
 	const items = document.querySelectorAll('.gallery-img-container');
 	const lightbox = document.getElementById('lightbox');
-	const caption = document.getElementById('lightbox-caption');
+	const captionEl = document.getElementById('lightbox-caption');
+	const tagsEl = document.getElementById('lightbox-tags');
 	const closeBtn = document.querySelector('.close-lightbox');
 
 	items.forEach(item => {
 		item.addEventListener('click', () => {
-			const title = item.querySelector('h3')?.textContent || '';
+			const category = (item as HTMLElement).dataset.category || item.querySelector('h3')?.textContent || '';
+			const rawTags = (item as HTMLElement).dataset.tags || '';
 			const imgSrc = item.querySelector('img')?.getAttribute('src') || '';
 			const lbImg = document.getElementById('lightbox-img') as HTMLImageElement;
 			
-			if (lightbox && caption && lbImg) {
+			if (lightbox && captionEl && lbImg) {
 				lbImg.src = imgSrc;
-				caption.textContent = title;
+				captionEl.textContent = category;
+
+				// Render hashtag chips di lightbox
+				if (tagsEl) {
+					tagsEl.innerHTML = '';
+					if (rawTags.trim()) {
+						rawTags.split(',').forEach(tag => {
+							const t = tag.trim();
+							if (t) {
+								const chip = document.createElement('span');
+								chip.className = 'lb-tag';
+								chip.textContent = `#${t}`;
+								tagsEl.appendChild(chip);
+							}
+						});
+					}
+				}
+
 				lightbox.style.display = 'flex';
 			}
 		});
