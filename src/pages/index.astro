@@ -6,7 +6,7 @@ const { data: newsData } = await supabase
   .from('news')
   .select('*')
   .order('date', { ascending: false })
-  .limit(3);
+  .limit(4);
 
 const news = newsData || [];
 ---
@@ -212,8 +212,8 @@ const news = newsData || [];
 
 	.news-grid {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 2rem;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 1.5rem;
 	}
 
 	.news-card {
