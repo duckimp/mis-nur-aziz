@@ -269,7 +269,7 @@ export const DashboardCharts = () => {
   return (
     <div style={S.page}>
       {/* ── Stat Cards ── */}
-      <div style={S.statsGrid}>
+      <div className="stats-grid">
         <StatCard
           label="Total Berita"
           value={stats.news}
@@ -315,7 +315,7 @@ export const DashboardCharts = () => {
           <span>Memuat data dari database...</span>
         </div>
       ) : (
-        <div style={S.chartsGrid}>
+        <div className="charts-grid">
           {/* Bar Chart */}
           <div style={S.card}>
             <h3 style={S.cardTitle}>
@@ -346,8 +346,26 @@ export const DashboardCharts = () => {
 
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 1.25rem;
+        }
+
+        .charts-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1.25rem;
+        }
+
         @media (max-width: 768px) {
-          .charts-grid { grid-template-columns: 1fr !important; }
+          .stats-grid {
+            grid-template-columns: 1fr 1fr !important;
+          }
+          .charts-grid {
+            grid-template-columns: 1fr !important;
+          }
         }
       `}</style>
     </div>

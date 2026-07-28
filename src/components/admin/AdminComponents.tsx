@@ -4,7 +4,7 @@ import {
   Image, Upload, LayoutGrid, Inbox,
   Loader2, UserPlus, Plus, Users,
   Calendar, FileText, Tag, Paperclip,
-  AlertCircle,
+  AlertCircle, Download,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
@@ -118,7 +118,6 @@ const S = {
     transition: 'background 0.15s',
     fontFamily: "'Inter', sans-serif",
   },
-  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' },
   table: { width: '100%', borderCollapse: 'collapse' as const },
   thead: { background: '#f8fafc' },
   th: {
@@ -254,20 +253,20 @@ export const NewsManager = () => {
           Input Berita Baru
         </h3>
         <form onSubmit={handleUpload}>
-          <div style={S.grid2}>
+          <div className="admin-grid-2">
             <div style={S.formGroup}>
               <label style={S.label}>
                 <FileText size={13} color="#6b7280" />
                 Judul Berita
               </label>
-              <input style={S.input} type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Masukkan judul berita..." required />
+              <input className="admin-input" style={S.input} type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Masukkan judul berita..." required />
             </div>
             <div style={S.formGroup}>
               <label style={S.label}>
                 <Calendar size={13} color="#6b7280" />
                 Tanggal Berita
               </label>
-              <input style={S.input} type="date" value={date} onChange={e => setDate(e.target.value)} required />
+              <input className="admin-input" style={S.input} type="date" value={date} onChange={e => setDate(e.target.value)} required />
             </div>
           </div>
           <div style={S.formGroup}>
@@ -275,7 +274,7 @@ export const NewsManager = () => {
               <FileText size={13} color="#6b7280" />
               Deskripsi
             </label>
-            <textarea style={S.textarea} value={description} onChange={e => setDescription(e.target.value)} placeholder="Tulis ringkasan berita..." required />
+            <textarea className="admin-textarea" style={S.textarea} value={description} onChange={e => setDescription(e.target.value)} placeholder="Tulis ringkasan berita..." required />
           </div>
           <div style={S.formGroup}>
             <label style={S.label}>
@@ -284,7 +283,7 @@ export const NewsManager = () => {
             </label>
             <input style={S.fileInput} type="file" accept="image/webp" onChange={e => setImage(e.target.files?.[0] || null)} required />
           </div>
-          <button type="submit" disabled={uploading} style={{ ...S.btnPrimary, opacity: uploading ? 0.6 : 1 }}>
+          <button type="submit" disabled={uploading} style={{ ...S.btnPrimary, opacity: uploading ? 0.6 : 1 }} className="admin-btn">
             {uploading
               ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Menyimpan...</>
               : <><Save size={15} /> Simpan Berita</>
@@ -300,7 +299,7 @@ export const NewsManager = () => {
           Riwayat Berita
         </h3>
         <div style={S.overflowX}>
-          <table style={S.table}>
+          <table className="admin-table">
             <thead style={S.thead}>
               <tr>
                 <th style={S.th}>Judul</th>
@@ -323,17 +322,17 @@ export const NewsManager = () => {
                 </tr>
               ) : news.map(item => (
                 <tr key={item.id}>
-                  <td style={S.td}>{item.title}</td>
-                  <td style={S.td}>{item.date}</td>
-                  <td style={S.td}><span style={{ fontSize: '0.8rem', color: '#64748b' }}>{item.author}</span></td>
-                  <td style={S.td}>
+                  <td style={S.td} data-label="Judul">{item.title}</td>
+                  <td style={S.td} data-label="Tanggal">{item.date}</td>
+                  <td style={S.td} data-label="Input Oleh"><span style={{ fontSize: '0.8rem', color: '#64748b' }}>{item.author}</span></td>
+                  <td style={S.td} data-label="Aksi">
                     {userRole === 'admin' ? (
                       <button style={S.btnDanger} onClick={async () => {
                         if (confirm('Hapus berita ini?')) {
                           await supabase.from('news').delete().eq('id', item.id);
                           fetchNews();
                         }
-                      }}>
+                      }} className="admin-btn-action">
                         <Trash2 size={13} /> Hapus
                       </button>
                     ) : (
@@ -424,7 +423,7 @@ export const GalleryManager = () => {
               <Tag size={13} color="#6b7280" />
               Kategori Foto
             </label>
-            <select style={S.select} value={category} onChange={e => setCategory(e.target.value)} required>
+            <select className="admin-select" style={S.select} value={category} onChange={e => setCategory(e.target.value)} required>
               <option value="">— Pilih Kategori —</option>
               {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
             </select>
@@ -436,7 +435,7 @@ export const GalleryManager = () => {
             </label>
             <input style={S.fileInput} type="file" accept="image/webp" onChange={e => setImage(e.target.files?.[0] || null)} required />
           </div>
-          <button type="submit" disabled={uploading} style={{ ...S.btnPrimary, opacity: uploading ? 0.6 : 1 }}>
+          <button type="submit" disabled={uploading} style={{ ...S.btnPrimary, opacity: uploading ? 0.6 : 1 }} className="admin-btn">
             {uploading
               ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Mengupload...</>
               : <><Upload size={15} /> Simpan / Deploy</>
@@ -554,16 +553,16 @@ export const UserManager = () => {
               <FileText size={13} color="#6b7280" />
               Email Admin
             </label>
-            <input style={S.input} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@sekolah.com" required />
+            <input className="admin-input" style={S.input} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@sekolah.com" required />
           </div>
           <div style={S.formGroup}>
             <label style={S.label}>
               <AlertCircle size={13} color="#6b7280" />
               Password Sementara
             </label>
-            <input style={S.input} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Minimal 6 karakter" required />
+            <input className="admin-input" style={S.input} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Minimal 6 karakter" required />
           </div>
-          <button type="submit" disabled={loading} style={{ ...S.btnPrimary, opacity: loading ? 0.6 : 1 }}>
+          <button type="submit" disabled={loading} style={{ ...S.btnPrimary, opacity: loading ? 0.6 : 1 }} className="admin-btn">
             {loading
               ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Mendaftarkan...</>
               : <><Plus size={15} /> Daftarkan Admin</>
@@ -579,7 +578,7 @@ export const UserManager = () => {
           Daftar Admin / User
         </h3>
         <div style={S.overflowX}>
-          <table style={S.table}>
+          <table className="admin-table">
             <thead style={S.thead}>
               <tr>
                 <th style={S.th}>Email</th>
@@ -601,10 +600,10 @@ export const UserManager = () => {
                 </tr>
               ) : profiles.map(user => (
                 <tr key={user.id}>
-                  <td style={S.td}>{user.email || user.id}</td>
-                  <td style={S.td}><span style={S.badge}>{user.role || 'Admin'}</span></td>
-                  <td style={S.td}>
-                    <button style={S.btnDanger} onClick={() => handleDeleteUser(user.id)}>
+                  <td style={S.td} data-label="Email">{user.email || user.id}</td>
+                  <td style={S.td} data-label="Role"><span style={S.badge}>{user.role || 'Admin'}</span></td>
+                  <td style={S.td} data-label="Aksi">
+                    <button style={S.btnDanger} onClick={() => handleDeleteUser(user.id)} className="admin-btn-action">
                       <Trash2 size={13} /> Hapus Akses
                     </button>
                   </td>
@@ -619,7 +618,78 @@ export const UserManager = () => {
         </p>
       </div>
 
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        .admin-grid-2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+        }
+
+        .admin-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        @media (max-width: 768px) {
+          .admin-grid-2 {
+            grid-template-columns: 1fr !important;
+          }
+
+          /* Prevent auto-zooming inputs on mobile and scale fonts up */
+          .admin-input, .admin-select, .admin-textarea, input, textarea, select {
+            font-size: 16px !important;
+            padding: 0.75rem 0.875rem !important;
+          }
+
+          .admin-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 0.875rem !important;
+            font-size: 1rem !important;
+          }
+
+          /* Table card layout for mobile screen */
+          .admin-table thead {
+            display: none !important;
+          }
+          .admin-table tr {
+            display: block;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+          }
+          .admin-table td {
+            display: flex !important;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.625rem 0 !important;
+            border-bottom: 1px dashed #f1f5f9 !important;
+            font-size: 0.875rem !important;
+          }
+          .admin-table td::before {
+            content: attr(data-label);
+            font-weight: 700;
+            color: #64748b;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin-right: 1rem;
+          }
+          .admin-table td:last-child {
+            border-bottom: none !important;
+            justify-content: flex-end;
+          }
+
+          .admin-btn-action {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 0.875rem !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };

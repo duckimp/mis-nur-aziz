@@ -277,13 +277,14 @@ export const DocumentManager = () => {
           Upload Dokumen Baru
         </h3>
         <form onSubmit={handleUpload}>
-          <div style={S.grid2}>
+          <div className="admin-grid-2">
             <div style={S.formGroup}>
               <label style={S.label}>
                 <FileText size={13} color="#6b7280" />
                 Nama Dokumen
               </label>
               <input
+                className="admin-input"
                 style={S.input}
                 type="text"
                 value={name}
@@ -297,7 +298,7 @@ export const DocumentManager = () => {
                 <Tag size={13} color="#6b7280" />
                 Kategori
               </label>
-              <select style={S.select} value={category} onChange={e => setCategory(e.target.value)} required>
+              <select className="admin-select" style={S.select} value={category} onChange={e => setCategory(e.target.value)} required>
                 <option value="">— Pilih Kategori —</option>
                 {categories.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -316,8 +317,8 @@ export const DocumentManager = () => {
               required
             />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.25rem' }}>
-            <button type="submit" disabled={uploading} style={{ ...S.btnPrimary, opacity: uploading ? 0.6 : 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
+            <button type="submit" disabled={uploading} style={{ ...S.btnPrimary, opacity: uploading ? 0.6 : 1 }} className="admin-btn">
               {uploading
                 ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Mengupload...</>
                 : <><FileUp size={15} /> Upload Dokumen</>
@@ -331,9 +332,9 @@ export const DocumentManager = () => {
       </div>
 
       {/* ── Summary ── */}
-      <div style={{ display: 'flex', gap: '1rem' }}>
-        <div style={{ ...S.card, flex: 1, padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: '#dcfce7', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="admin-summary-grid">
+        <div style={{ ...S.card, padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: '#dcfce7', color: '#059669', display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center' }}>
             <CheckCircle2 size={20} />
           </div>
           <div>
@@ -341,7 +342,7 @@ export const DocumentManager = () => {
             <p style={{ fontFamily: "'Outfit'", fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>{activeCount}</p>
           </div>
         </div>
-        <div style={{ ...S.card, flex: 1, padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ ...S.card, padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{ width: 40, height: 40, borderRadius: 10, background: '#f1f5f9', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <XCircle size={20} />
           </div>
@@ -350,7 +351,7 @@ export const DocumentManager = () => {
             <p style={{ fontFamily: "'Outfit'", fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>{docs.length - activeCount}</p>
           </div>
         </div>
-        <div style={{ ...S.card, flex: 1, padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ ...S.card, padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{ width: 40, height: 40, borderRadius: 10, background: '#dbeafe', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <FileText size={20} />
           </div>
@@ -366,12 +367,12 @@ export const DocumentManager = () => {
         <h3 style={S.cardTitle}>
           <FileText size={18} color="#059669" />
           Daftar Dokumen
-          <span style={{ marginLeft: 'auto', fontSize: '0.75rem', fontWeight: 500, color: '#94a3b8' }}>
+          <span style={{ marginLeft: 'auto', fontSize: '0.75rem', fontWeight: 500, color: '#94a3b8' }} className="desktop-only">
             Toggle "Aktif" agar dokumen tampil di halaman publik
           </span>
         </h3>
         <div style={{ overflowX: 'auto' }}>
-          <table style={S.table}>
+          <table className="admin-table">
             <thead style={S.thead}>
               <tr>
                 <th style={S.th}>Nama Dokumen</th>
@@ -403,22 +404,22 @@ export const DocumentManager = () => {
                 </tr>
               ) : docs.map(doc => (
                 <tr key={doc.id} style={{ background: doc.is_active ? '#f0fdf4' : 'transparent', transition: 'background 0.2s' }}>
-                  <td style={S.td}>
+                  <td style={S.td} data-label="Nama Dokumen">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-                      <div style={{ width: 32, height: 32, borderRadius: 8, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} className="desktop-only">
                         <FileText size={15} color="#64748b" />
                       </div>
                       <span style={{ fontWeight: 500, color: '#0f172a' }}>{doc.name}</span>
                     </div>
                   </td>
-                  <td style={S.td}>
+                  <td style={S.td} data-label="Kategori">
                     <span style={{ display: 'inline-flex', padding: '0.2rem 0.6rem', background: '#eff6ff', color: '#3b82f6', borderRadius: 20, fontSize: '0.72rem', fontWeight: 700 }}>
                       {doc.category}
                     </span>
                   </td>
-                  <td style={{ ...S.td, color: '#64748b' }}>{doc.file_size}</td>
-                  <td style={{ ...S.td, color: '#64748b' }}>{formatDate(doc.created_at)}</td>
-                  <td style={S.td}>
+                  <td style={{ ...S.td, color: '#64748b' }} data-label="Ukuran">{doc.file_size}</td>
+                  <td style={{ ...S.td, color: '#64748b' }} data-label="Tanggal">{formatDate(doc.created_at)}</td>
+                  <td style={S.td} data-label="Status">
                     {userRole === 'admin' ? (
                       <button
                         style={S.toggleBtn(doc.is_active)}
@@ -436,19 +437,20 @@ export const DocumentManager = () => {
                       </span>
                     )}
                   </td>
-                  <td style={S.td}>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <td style={S.td} data-label="Aksi">
+                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                       <a
                         href={doc.file_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{ ...S.btnDanger, background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', textDecoration: 'none' }}
                         title="Preview / Unduh"
+                        className="admin-btn-action"
                       >
                         <Download size={13} />
                       </a>
                       {userRole === 'admin' && (
-                        <button style={S.btnDanger} onClick={() => handleDelete(doc)} title="Hapus permanen">
+                        <button style={S.btnDanger} onClick={() => handleDelete(doc)} title="Hapus permanen" className="admin-btn-action">
                           <Trash2 size={13} />
                         </button>
                       )}
@@ -468,7 +470,92 @@ export const DocumentManager = () => {
         )}
       </div>
 
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        /* Responsive Grid Form */
+        .admin-grid-2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+        }
+
+        /* Summary Grid */
+        .admin-summary-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1rem;
+        }
+
+        /* Table */
+        .admin-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        /* Responsive Mobile styles */
+        @media (max-width: 768px) {
+          .admin-grid-2, .admin-summary-grid {
+            grid-template-columns: 1fr !important;
+          }
+          
+          .desktop-only {
+            display: none !important;
+          }
+
+          /* Form typography & spacing */
+          .admin-input, .admin-select {
+            font-size: 16px !important; /* Mencegah auto-zoom di mobile */
+            padding: 0.75rem 0.875rem !important;
+          }
+          
+          .admin-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 0.875rem !important;
+            font-size: 1rem !important;
+          }
+
+          /* Table Mobile Card Layout */
+          .admin-table thead {
+            display: none !important;
+          }
+          .admin-table tr {
+            display: block;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+          }
+          .admin-table td {
+            display: flex !important;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.625rem 0 !important;
+            border-bottom: 1px dashed #f1f5f9 !important;
+            font-size: 0.875rem !important;
+          }
+          .admin-table td::before {
+            content: attr(data-label);
+            font-weight: 700;
+            color: #64748b;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin-right: 1rem;
+          }
+          .admin-table td:last-child {
+            border-bottom: none !important;
+            justify-content: flex-end;
+          }
+          
+          .admin-btn-action {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 0.875rem !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };
