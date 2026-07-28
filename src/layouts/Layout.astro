@@ -7,13 +7,23 @@ interface Props {
 	title: string;
 	description?: string;
 	showNavFooter?: boolean;
+	ogImage?: string;
+	ogUrl?: string;
+	ogType?: string;
 }
 
 const { 
 	title, 
 	description = "Website Resmi MIS Nur Aziz - Mewujudkan Generasi Qur'ani dan Berprestasi",
-	showNavFooter = true
+	showNavFooter = true,
+	ogImage,
+	ogUrl,
+	ogType = 'website',
 } = Astro.props;
+
+const siteUrl = 'https://mis-nur-aziz.vercel.app';
+const resolvedOgImage = ogImage || `${siteUrl}/images/logo.png`;
+const resolvedOgUrl = ogUrl || siteUrl;
 ---
 
 <!doctype html>
@@ -25,6 +35,19 @@ const {
 		<link rel="icon" type="image/png" href="/images/logo.png" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title} | MIS Nur Aziz</title>
+		<!-- Open Graph / WhatsApp / Social Preview -->
+		<meta property="og:type" content={ogType} />
+		<meta property="og:title" content={`${title} | MIS Nur Aziz`} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={resolvedOgImage} />
+		<meta property="og:url" content={resolvedOgUrl} />
+		<meta property="og:site_name" content="MIS Nur Aziz" />
+		<meta property="og:locale" content="id_ID" />
+		<!-- Twitter Card -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={`${title} | MIS Nur Aziz`} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={resolvedOgImage} />
 	</head>
 	<body>
 		{showNavFooter && <Navbar />}

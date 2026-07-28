@@ -49,11 +49,11 @@ const news = newsData || [];
 		<div class="container">
 			<div class="section-header">
 				<h2 class="section-title">Berita Terbaru</h2>
-				<a href="#" class="view-all">Lihat Semua &rarr;</a>
+				<a href="/berita" class="view-all">Lihat Semua &rarr;</a>
 			</div>
 			<div class="news-grid">
 				{news.map(item => (
-					<article class="news-card">
+					<a href={`/berita/${item.slug || item.id}`} class="news-card">
 						<div class="news-img-container">
 							<img src={item.image_url} alt={item.title} class="news-img-actual-card" />
 						</div>
@@ -62,7 +62,7 @@ const news = newsData || [];
 							<h3>{item.title}</h3>
 							<p>{item.description}</p>
 						</div>
-					</article>
+					</a>
 				))}
 			</div>
 		</div>
@@ -222,6 +222,9 @@ const news = newsData || [];
 		overflow: hidden;
 		box-shadow: var(--shadow-md);
 		transition: var(--transition);
+		text-decoration: none;
+		color: inherit;
+		display: block;
 	}
 
 	.news-card:hover {

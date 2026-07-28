@@ -181,10 +181,20 @@ const Spinner = ({ text = 'Memuat...' }: { text?: string }) => (
 );
 
 // ─── NewsManager ──────────────────────────────────────────────────────────────
+const toSlug = (text: string) =>
+  text
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Hapus diakritik
+    .replace(/[^a-z0-9\s-]/g, '')  // Hanya huruf, angka, spasi, strip
+    .trim()
+    .replace(/\s+/g, '-')          // Spasi → strip
+    .replace(/-+/g, '-');          // Strip berulang → satu
+
 export const NewsManager = () => {
   const [news, setNews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState('');
+  const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [image, setImage] = useState<File | null>(null);
@@ -232,9 +242,10 @@ export const NewsManager = () => {
         imageUrl = publicUrl;
       }
       const { data: { user } } = await supabase.auth.getUser();
-      const { error } = await supabase.from('news').insert([{ title, description, date, image_url: imageUrl, author: user?.email }]);
+      const finalSlug = slug || toSlug(title);
+      const { error } = await supabase.from('news').insert([{ title, slug: finalSlug, description, date, image_url: imageUrl, author: user?.email }]);
       if (error) throw error;
-      setTitle(''); setDescription(''); setDate(''); setImage(null);
+      setTitle(''); setSlug(''); setDescription(''); setDate(''); setImage(null);
       fetchNews();
       alert('Berita berhasil disimpan!');
     } catch (error: any) {
@@ -259,7 +270,7 @@ export const NewsManager = () => {
                 <FileText size={13} color="#6b7280" />
                 Judul Berita
               </label>
-              <input className="admin-input" style={S.input} type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Masukkan judul berita..." required />
+              <input className="admin-input" style={S.input} type="text" value={title} onChange={e => { setTitle(e.target.value); setSlug(toSlug(e.target.value)); }} placeholder="Masukkan judul berita..." required />
             </div>
             <div style={S.formGroup}>
               <label style={S.label}>
@@ -268,6 +279,14 @@ export const NewsManager = () => {
               </label>
               <input className="admin-input" style={S.input} type="date" value={date} onChange={e => setDate(e.target.value)} required />
             </div>
+          </div>
+          <div style={S.formGroup}>
+            <label style={S.label}>
+              <Tag size={13} color="#6b7280" />
+              Slug URL (otomatis)
+            </label>
+            <input className="admin-input" style={{ ...S.input, fontFamily: 'monospace', fontSize: '0.8rem', color: '#059669' }} type="text" value={slug} onChange={e => setSlug(e.target.value)} placeholder="contoh: momen-upacara-bendera" />
+            <span style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '2px' }}>URL: /berita/<strong style={{ color: '#059669' }}>{slug || 'judul-berita'}</strong></span>
           </div>
           <div style={S.formGroup}>
             <label style={S.label}>

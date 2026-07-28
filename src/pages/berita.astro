@@ -1,0 +1,416 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { supabase } from '../lib/supabase';
+
+const { data: newsData } = await supabase
+  .from('news')
+  .select('*')
+  .order('date', { ascending: false });
+
+const news = newsData || [];
+
+// Format tanggal ke Bahasa Indonesia
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+};
+---
+
+<Layout title="Berita" description="Berita terbaru dan informasi seputar kegiatan MIS Nur Aziz.">
+  <!-- Page Header -->
+  <section class="page-header section">
+    <div class="container animate-up">
+      <span class="badge">Informasi Terkini</span>
+      <h1>Berita & Pengumuman</h1>
+      <p>Temukan informasi terbaru seputar kegiatan, prestasi, dan pengumuman MIS Nur Aziz.</p>
+    </div>
+  </section>
+
+  <!-- Search Bar -->
+  <section class="search-section">
+    <div class="container">
+      <div class="search-wrap">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input 
+          type="search" 
+          id="search-input"
+          placeholder="Cari berita, kegiatan, atau pengumuman..." 
+          class="search-input"
+          autocomplete="off"
+        />
+        <span id="result-count" class="result-count"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- News Grid -->
+  <section class="news-section section">
+    <div class="container">
+      <div id="news-grid" class="news-grid">
+        {news.map((item, index) => {
+          const slug = item.slug || item.id;
+          const formattedDate = formatDate(item.date);
+          const excerpt = item.description?.length > 120
+            ? item.description.slice(0, 120) + '...'
+            : item.description;
+          return (
+            <a 
+              href={`/berita/${slug}`} 
+              class="news-card animate-up"
+              style={{ animationDelay: `${index * 0.07}s` }}
+              data-title={item.title.toLowerCase()}
+              data-desc={(item.description || '').toLowerCase()}
+            >
+              <div class="news-img-wrap">
+                <img src={item.image_url} alt={item.title} class="news-img" loading="lazy" />
+                <div class="news-img-overlay">
+                  <span class="read-more-badge">Baca Selengkapnya →</span>
+                </div>
+              </div>
+              <div class="news-body">
+                <div class="news-meta">
+                  <span class="news-date">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                    {formattedDate}
+                  </span>
+                </div>
+                <h2 class="news-title">{item.title}</h2>
+                <p class="news-excerpt">{excerpt}</p>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="empty-state" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <h3>Tidak ada berita ditemukan</h3>
+        <p>Coba gunakan kata kunci yang berbeda.</p>
+        <button id="reset-search" class="reset-btn">Tampilkan Semua Berita</button>
+      </div>
+
+      {news.length === 0 && (
+        <div class="no-news-state">
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <h3>Belum ada berita</h3>
+          <p>Berita akan segera hadir. Pantau terus ya!</p>
+        </div>
+      )}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* ── Page Header ────────────────────────────────────────────────────────── */
+  .page-header {
+    background: linear-gradient(135deg, rgba(5,150,105,0.05) 0%, rgba(4,120,87,0.08) 100%);
+    padding-top: 130px;
+    text-align: center;
+    border-bottom: 1px solid rgba(5,150,105,0.1);
+  }
+
+  .badge {
+    display: inline-block;
+    background: #d1fae5;
+    color: var(--primary);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 0.35rem 1rem;
+    border-radius: 999px;
+    margin-bottom: 1rem;
+  }
+
+  .page-header h1 {
+    font-size: 3rem;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+  }
+
+  .page-header p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    max-width: 550px;
+    margin: 0 auto;
+  }
+
+  /* ── Search ─────────────────────────────────────────────────────────────── */
+  .search-section {
+    padding: 2rem 0 1rem;
+    background: white;
+    position: sticky;
+    top: 80px;
+    z-index: 100;
+    border-bottom: 1px solid #f1f5f9;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  }
+
+  .search-wrap {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 1rem;
+    color: #94a3b8;
+    pointer-events: none;
+    flex-shrink: 0;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 0.85rem 3.5rem 0.85rem 3rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    color: #1e293b;
+    background: #fafafa;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .search-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(5,150,105,0.1);
+    background: white;
+  }
+
+  .result-count {
+    position: absolute;
+    right: 1rem;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  /* ── News Grid ──────────────────────────────────────────────────────────── */
+  .news-section { padding: 3rem 0 5rem; }
+
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  /* ── News Card ──────────────────────────────────────────────────────────── */
+  .news-card {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    border: 1px solid #f1f5f9;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .news-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+  }
+
+  .news-card.hidden {
+    display: none;
+  }
+
+  .news-img-wrap {
+    position: relative;
+    height: 210px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .news-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .news-card:hover .news-img {
+    transform: scale(1.07);
+  }
+
+  .news-img-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(5,150,105,0.8) 0%, transparent 60%);
+    display: flex;
+    align-items: flex-end;
+    padding: 1rem;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .news-card:hover .news-img-overlay {
+    opacity: 1;
+  }
+
+  .read-more-badge {
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(6px);
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+
+  .news-body {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .news-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .news-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    font-weight: 500;
+  }
+
+  .news-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .news-card:hover .news-title {
+    color: var(--primary);
+  }
+
+  .news-excerpt {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ── Empty / No News States ─────────────────────────────────────────────── */
+  .empty-state, .no-news-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 5rem 1rem;
+    color: #94a3b8;
+    text-align: center;
+  }
+
+  .empty-state h3, .no-news-state h3 {
+    font-size: 1.25rem;
+    color: #64748b;
+    margin: 0;
+  }
+
+  .empty-state p, .no-news-state p {
+    font-size: 0.875rem;
+    color: #94a3b8;
+    margin: 0;
+  }
+
+  .reset-btn {
+    margin-top: 0.5rem;
+    padding: 0.6rem 1.5rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: opacity 0.2s;
+  }
+
+  .reset-btn:hover { opacity: 0.85; }
+
+  /* ── Responsive ─────────────────────────────────────────────────────────── */
+  @media (max-width: 992px) {
+    .news-grid { grid-template-columns: 1fr 1fr; }
+    .page-header h1 { font-size: 2.25rem; }
+  }
+
+  @media (max-width: 640px) {
+    .news-grid { grid-template-columns: 1fr; gap: 1.25rem; }
+    .page-header { padding-top: 110px; }
+    .page-header h1 { font-size: 1.75rem; }
+    .search-section { top: 70px; }
+  }
+</style>
+
+<script>
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const cards = document.querySelectorAll<HTMLElement>('.news-card');
+  const emptyState = document.getElementById('empty-state');
+  const resultCount = document.getElementById('result-count');
+  const resetBtn = document.getElementById('reset-search');
+
+  function filterNews(query: string) {
+    const q = query.toLowerCase().trim();
+    let visible = 0;
+
+    cards.forEach(card => {
+      const title = card.dataset.title || '';
+      const desc = card.dataset.desc || '';
+      const match = !q || title.includes(q) || desc.includes(q);
+      card.classList.toggle('hidden', !match);
+      if (match) visible++;
+    });
+
+    // Tampilkan jumlah hasil
+    if (q && resultCount) {
+      resultCount.textContent = `${visible} berita`;
+    } else if (resultCount) {
+      resultCount.textContent = '';
+    }
+
+    // Tampilkan empty state jika tidak ada hasil
+    if (emptyState) {
+      emptyState.hidden = visible > 0 || !q;
+    }
+  }
+
+  searchInput?.addEventListener('input', e => {
+    filterNews((e.target as HTMLInputElement).value);
+  });
+
+  resetBtn?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    filterNews('');
+  });
+</script>
