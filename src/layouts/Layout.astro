@@ -6,9 +6,14 @@ import Footer from '../components/Footer.astro';
 interface Props {
 	title: string;
 	description?: string;
+	showNavFooter?: boolean;
 }
 
-const { title, description = "Website Resmi MIS Nur Aziz - Mewujudkan Generasi Qur'ani dan Berprestasi" } = Astro.props;
+const { 
+	title, 
+	description = "Website Resmi MIS Nur Aziz - Mewujudkan Generasi Qur'ani dan Berprestasi",
+	showNavFooter = true
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -22,10 +27,10 @@ const { title, description = "Website Resmi MIS Nur Aziz - Mewujudkan Generasi Q
 		<title>{title} | MIS Nur Aziz</title>
 	</head>
 	<body>
-		<Navbar />
+		{showNavFooter && <Navbar />}
 		<main>
 			<slot />
 		</main>
-		<Footer />
+		{showNavFooter && <Footer />}
 	</body>
 </html>
