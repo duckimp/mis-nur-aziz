@@ -190,6 +190,53 @@ const toSlug = (text: string) =>
     .replace(/\s+/g, '-')          // Spasi → strip
     .replace(/-+/g, '-');          // Strip berulang → satu
 
+// Helper untuk kompresi dan konversi gambar ke WebP di sisi client
+const compressAndConvertToWebp = (file: File, maxWidth = 1200, quality = 0.82): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = document.createElement('img');
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Resize proporsional jika melebihi batas resolusi lebar
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Gagal inisialisasi context canvas'));
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error('Gagal kompresi file ke WebP'));
+            }
+          },
+          'image/webp',
+          quality
+        );
+      };
+      img.onerror = () => reject(new Error('Gagal membaca resource gambar'));
+    };
+    reader.onerror = () => reject(new Error('Gagal membaca data file'));
+  });
+};
+
 export const NewsManager = () => {
   const [news, setNews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -199,6 +246,7 @@ export const NewsManager = () => {
   const [date, setDate] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState('');
   const [userRole, setUserRole] = useState<string>('guru');
 
   useEffect(() => {
@@ -231,16 +279,30 @@ export const NewsManager = () => {
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     setUploading(true);
+    setUploadStatus('Mempersiapkan...');
     try {
       let imageUrl = '';
       if (image) {
-        const fileExt = image.name.split('.').pop();
-        const filePath = `news/${Math.random()}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage.from('images').upload(filePath, image);
+        setUploadStatus('Mengompresi & konversi ke WebP otomatis (mohon bersabar)...');
+        
+        // Kompres dan konversi ke WebP di browser
+        const webpBlob = await compressAndConvertToWebp(image);
+        
+        setUploadStatus('Mengunggah gambar terkompresi ke storage...');
+        const filePath = `news/${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('images')
+          .upload(filePath, webpBlob, {
+            contentType: 'image/webp'
+          });
+          
         if (uploadError) throw uploadError;
         const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(filePath);
         imageUrl = publicUrl;
       }
+      
+      setUploadStatus('Menyimpan data berita...');
       const { data: { user } } = await supabase.auth.getUser();
       const finalSlug = slug || toSlug(title);
       const { error } = await supabase.from('news').insert([{ title, slug: finalSlug, description, date, image_url: imageUrl, author: user?.email }]);
@@ -252,6 +314,7 @@ export const NewsManager = () => {
       alert(error.message);
     } finally {
       setUploading(false);
+      setUploadStatus('');
     }
   };
 
@@ -298,13 +361,13 @@ export const NewsManager = () => {
           <div style={S.formGroup}>
             <label style={S.label}>
               <Paperclip size={13} color="#6b7280" />
-              Foto Sampul (WebP)
+              Foto Sampul (Mendukung JPG, PNG, WebP — Otomatis dikompres & dikonversi)
             </label>
-            <input style={S.fileInput} type="file" accept="image/webp" onChange={e => setImage(e.target.files?.[0] || null)} required />
+            <input style={S.fileInput} type="file" accept="image/*" onChange={e => setImage(e.target.files?.[0] || null)} required />
           </div>
           <button type="submit" disabled={uploading} style={{ ...S.btnPrimary, opacity: uploading ? 0.6 : 1 }} className="admin-btn">
             {uploading
-              ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Menyimpan...</>
+              ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> {uploadStatus}</>
               : <><Save size={15} /> Simpan Berita</>
             }
           </button>
@@ -376,6 +439,7 @@ export const GalleryManager = () => {
   const [tags, setTags] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState('');
   const [userRole, setUserRole] = useState<string>('guru');
 
   useEffect(() => {
@@ -409,13 +473,26 @@ export const GalleryManager = () => {
     e.preventDefault();
     if (!category.trim() || !image) return alert('Kategori dan foto wajib diisi!');
     setUploading(true);
+    setUploadStatus('Mempersiapkan...');
     try {
-      const fileExt = image.name.split('.').pop();
-      const filePath = `gallery/${Math.random()}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage.from('images').upload(filePath, image);
+      setUploadStatus('Mengompresi & konversi ke WebP otomatis (mohon bersabar)...');
+      
+      // Kompres dan konversi ke WebP di browser
+      const webpBlob = await compressAndConvertToWebp(image);
+      
+      setUploadStatus('Mengunggah gambar terkompresi ke storage...');
+      const filePath = `gallery/${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(filePath, webpBlob, {
+          contentType: 'image/webp'
+        });
+        
       if (uploadError) throw uploadError;
       const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(filePath);
       
+      setUploadStatus('Menyimpan data foto...');
       // Simpan data kategori dan tags ke Supabase
       const { error } = await supabase.from('gallery').insert([{ 
         category: category.trim(), 
@@ -431,6 +508,7 @@ export const GalleryManager = () => {
       alert(error.message);
     } finally {
       setUploading(false);
+      setUploadStatus('');
     }
   };
 
@@ -477,13 +555,13 @@ export const GalleryManager = () => {
           <div style={S.formGroup}>
             <label style={S.label}>
               <Paperclip size={13} color="#6b7280" />
-              File Foto (WebP)
+              File Foto (Mendukung JPG, PNG, WebP — Otomatis dikompres & dikonversi)
             </label>
-            <input style={S.fileInput} type="file" accept="image/webp" onChange={e => setImage(e.target.files?.[0] || null)} required />
+            <input style={S.fileInput} type="file" accept="image/*" onChange={e => setImage(e.target.files?.[0] || null)} required />
           </div>
           <button type="submit" disabled={uploading} style={{ ...S.btnPrimary, opacity: uploading ? 0.6 : 1 }} className="admin-btn">
             {uploading
-              ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Mengupload...</>
+              ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> {uploadStatus}</>
               : <><Upload size={15} /> Simpan / Deploy</>
             }
           </button>
