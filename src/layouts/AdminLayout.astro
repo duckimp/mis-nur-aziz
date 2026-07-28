@@ -20,8 +20,11 @@ const menuItems = [
 
 <Layout title={title} showNavFooter={false}>
   <div class="admin-layout">
+    <!-- Overlay Backdrop for Mobile -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="adminSidebar">
       <!-- Brand -->
       <div class="sidebar-brand">
         <div class="brand-logo">
@@ -63,6 +66,12 @@ const menuItems = [
       <!-- Top Header -->
       <header class="admin-header">
         <div class="header-left">
+          <!-- Mobile Menu Trigger -->
+          <button id="mobileMenuBtn" class="mobile-menu-trigger" aria-label="Open Sidebar Menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>
+            </svg>
+          </button>
           <h1 class="page-title">{title}</h1>
         </div>
         <div class="header-right">
@@ -108,8 +117,9 @@ const menuItems = [
     top: 0;
     left: 0;
     bottom: 0;
-    z-index: 100;
+    z-index: 1000;
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* ===== Brand ===== */
@@ -283,7 +293,7 @@ const menuItems = [
   .admin-header {
     position: sticky;
     top: 0;
-    z-index: 50;
+    z-index: 500;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -292,6 +302,11 @@ const menuItems = [
     background: #ffffff;
     border-bottom: 1px solid #e2e8f0;
     box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
   }
 
   .page-title {
@@ -342,6 +357,45 @@ const menuItems = [
     white-space: nowrap;
   }
 
+  /* ===== Mobile Menu Trigger ===== */
+  .mobile-menu-trigger {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    border: none;
+    border-radius: 8px;
+    width: 38px;
+    height: 38px;
+    color: #475569;
+    cursor: pointer;
+    margin-right: 1rem;
+    transition: all 0.2s;
+  }
+
+  .mobile-menu-trigger:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+
+  /* ===== Sidebar Overlay ===== */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 950;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+  }
+
   /* ===== Page Content ===== */
   .page-content {
     flex: 1;
@@ -350,9 +404,17 @@ const menuItems = [
   }
 
   /* ===== Responsive ===== */
-  @media (max-width: 768px) {
+  @media (max-width: 992px) {
+    .mobile-menu-trigger {
+      display: flex;
+    }
+
     .sidebar {
       transform: translateX(-100%);
+    }
+
+    .sidebar.active {
+      transform: translateX(0);
     }
 
     .main-wrapper {
@@ -362,12 +424,47 @@ const menuItems = [
     .user-email {
       display: none;
     }
+
+    .page-content {
+      padding: 1.25rem;
+    }
+
+    .admin-header {
+      padding: 0 1.25rem;
+    }
   }
 </style>
 
 <script>
   import { supabase } from '../lib/supabase';
 
+  // Toggle Sidebar
+  const sidebar = document.getElementById('adminSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const trigger = document.getElementById('mobileMenuBtn');
+
+  const openSidebar = () => {
+    sidebar?.classList.add('active');
+    overlay?.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeSidebar = () => {
+    sidebar?.classList.remove('active');
+    overlay?.classList.remove('active');
+    document.body.style.overflow = '';
+  };
+
+  trigger?.addEventListener('click', openSidebar);
+  overlay?.addEventListener('click', closeSidebar);
+
+  // Close sidebar on navigate
+  const navLinks = document.querySelectorAll('.nav-link');
+  navLinks.forEach(link => {
+    link.addEventListener('click', closeSidebar);
+  });
+
+  // Logout
   const logoutBtn = document.getElementById('logoutBtn');
   logoutBtn?.addEventListener('click', async () => {
     await supabase.auth.signOut();
