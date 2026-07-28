@@ -1,5 +1,5 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from '../../layouts/Layout.astro';
 ---
 
 <Layout title="Admin Login - MIS Nurul Aziz">
@@ -35,7 +35,7 @@ import Layout from '../layouts/Layout.astro';
 </Layout>
 
 <script>
-  import { supabase } from '../lib/supabase';
+  import { supabase } from '../../lib/supabase';
 
   const loginForm = document.getElementById('loginForm') as HTMLFormElement;
   const errorMessage = document.getElementById('errorMessage');
