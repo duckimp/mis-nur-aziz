@@ -1,5 +1,4 @@
 ---
----
 import Layout from '../layouts/Layout.astro';
 import { supabase } from '../lib/supabase';
 
@@ -24,7 +23,7 @@ const galleryItems = galleryData || [];
 		<div class="container">
 			<div class="gallery-grid">
 				{galleryItems.map((item, index) => (
-					<div class="gallery-item animate-up" style={`animation-delay: ${index * 0.1}s`}>
+					<div class="gallery-item animate-up" style={{ animationDelay: `${index * 0.1}s` }}>
 						<div class="gallery-img-container" data-index={index}>
 							<img src={item.image_url} alt={item.category} class="gallery-img" />
 							<div class="gallery-overlay">
