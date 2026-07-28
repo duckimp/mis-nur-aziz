@@ -24,6 +24,15 @@ const {
 const siteUrl = 'https://mis-nur-aziz.vercel.app';
 const resolvedOgImage = ogImage || `${siteUrl}/images/logo.png`;
 const resolvedOgUrl = ogUrl || siteUrl;
+
+// Ekstrak domain Supabase secara dinamis untuk preconnect
+const envSupabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+let supabaseOrigin = '';
+try {
+	if (envSupabaseUrl) {
+		supabaseOrigin = new URL(envSupabaseUrl).origin;
+	}
+} catch (e) {}
 ---
 
 <!doctype html>
@@ -39,13 +48,26 @@ const resolvedOgUrl = ogUrl || siteUrl;
 		<!-- Resource Hints: preconnect untuk mempercepat koneksi eksternal -->
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link rel="preconnect" href="https://wduoyaqmfkjnbkuqxsav.supabase.co" />
+		{supabaseOrigin && <link rel="preconnect" href={supabaseOrigin} />}
 
-		<!-- Google Fonts: non-blocking via link (bukan @import di CSS) -->
+		<!-- Google Fonts: Asynchronous & Non-blocking loading -->
+		<link
+			rel="preload"
+			as="style"
+			href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+		/>
 		<link
 			href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
 			rel="stylesheet"
+			media="print"
+			onload="this.media='all'"
 		/>
+		<noscript>
+			<link
+				href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+				rel="stylesheet"
+			/>
+		</noscript>
 
 		<!-- Open Graph / WhatsApp / Social Preview -->
 		<meta property="og:type" content={ogType} />
@@ -126,8 +148,6 @@ const resolvedOgUrl = ogUrl || siteUrl;
 </html>
 
 <script>
-  import { supabase } from '../lib/supabase';
-
   const modal     = document.getElementById('login-modal');
   const closeBtn  = document.getElementById('close-login-modal');
   const form      = document.getElementById('modal-login-form') as HTMLFormElement | null;
@@ -184,6 +204,9 @@ const resolvedOgUrl = ogUrl || siteUrl;
     btnText.textContent = 'Memverifikasi...';
     spinner?.classList.remove('hidden');
     if (errorBox) errorBox.hidden = true;
+
+    // Load supabase client dynamically to avoid heavy initial bundle
+    const { supabase } = await import('../lib/supabase');
 
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 

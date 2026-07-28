@@ -32,7 +32,7 @@ const teachers = [
 					<div class="teacher-card animate-up">
 						<div class="teacher-img">
 							{teacher.image !== '#' ? (
-								<img src={teacher.image} alt={teacher.name} class="teacher-photo" />
+								<img src={teacher.image} alt={teacher.name} class="teacher-photo" loading="lazy" decoding="async" />
 							) : (
 								<div class="image-placeholder-portrait">
 									<span class="initials">{teacher.name.charAt(0)}</span>
