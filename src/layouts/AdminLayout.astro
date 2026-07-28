@@ -1,6 +1,5 @@
 ---
 import Layout from './Layout.astro';
-import { supabase } from '../lib/supabase';
 
 interface Props {
   title: string;
@@ -8,13 +7,7 @@ interface Props {
 }
 
 const { title, activeMenu } = Astro.props;
-
-// Check session on server-side
-const { data: { session } } = await supabase.auth.getSession();
-
-if (!session) {
-  return Astro.redirect('/admin/login');
-}
+const email = Astro.locals.email;
 
 const menuItems = [
   { name: 'Dashboard', icon: 'layout-dashboard', href: '/admin/dashboard' },
@@ -57,7 +50,7 @@ const menuItems = [
       <header class="bg-white shadow-sm h-16 flex items-center justify-between px-8">
         <h1 class="text-xl font-semibold text-gray-800">{title}</h1>
         <div class="flex items-center gap-4">
-          <span class="text-sm text-gray-600">{session.user.email}</span>
+          <span class="text-sm text-gray-600">{email}</span>
         </div>
       </header>
       <div class="p-8 overflow-y-auto">
