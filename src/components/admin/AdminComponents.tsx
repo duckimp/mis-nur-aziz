@@ -1,4 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Pencil, Save, ClipboardList, Trash2,
+  Image, Upload, LayoutGrid, Inbox,
+  Loader2, UserPlus, Plus, Users,
+  Calendar, FileText, Tag, Paperclip,
+  AlertCircle,
+} from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 // ─── Shared Styles ───────────────────────────────────────────────────────────
@@ -12,6 +19,9 @@ const S = {
     border: '1px solid #f1f5f9',
   },
   cardTitle: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
     fontFamily: "'Outfit', sans-serif",
     fontSize: '1rem',
     fontWeight: 700,
@@ -21,7 +31,15 @@ const S = {
     borderBottom: '1px solid #f1f5f9',
   },
   formGroup: { display: 'flex', flexDirection: 'column' as const, gap: '0.375rem', marginBottom: '1rem' },
-  label: { fontSize: '0.8rem', fontWeight: 600, color: '#374151', letterSpacing: '0.02em' },
+  label: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.375rem',
+    fontSize: '0.8rem',
+    fontWeight: 600,
+    color: '#374151',
+    letterSpacing: '0.02em',
+  },
   input: {
     width: '100%',
     padding: '0.625rem 0.875rem',
@@ -33,6 +51,7 @@ const S = {
     outline: 'none',
     transition: 'border-color 0.15s, box-shadow 0.15s',
     fontFamily: "'Inter', sans-serif",
+    boxSizing: 'border-box' as const,
   },
   textarea: {
     width: '100%',
@@ -47,6 +66,7 @@ const S = {
     minHeight: '120px',
     fontFamily: "'Inter', sans-serif",
     lineHeight: 1.6,
+    boxSizing: 'border-box' as const,
   },
   select: {
     width: '100%',
@@ -59,6 +79,7 @@ const S = {
     outline: 'none',
     cursor: 'pointer',
     fontFamily: "'Inter', sans-serif",
+    boxSizing: 'border-box' as const,
   },
   fileInput: {
     width: '100%',
@@ -117,7 +138,16 @@ const S = {
     borderBottom: '1px solid #f1f5f9',
     verticalAlign: 'middle' as const,
   },
-  emptyRow: { textAlign: 'center' as const, color: '#94a3b8', padding: '2.5rem 1rem', fontSize: '0.875rem' },
+  emptyState: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    padding: '2.5rem 1rem',
+    color: '#94a3b8',
+    fontSize: '0.875rem',
+  },
   badge: {
     display: 'inline-flex',
     alignItems: 'center',
@@ -131,7 +161,25 @@ const S = {
     letterSpacing: '0.05em',
   },
   overflowX: { overflowX: 'auto' as const },
+  spinnerWrap: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    padding: '2rem',
+    color: '#94a3b8',
+    fontSize: '0.875rem',
+  },
 };
+
+// ─── Spinner Component ────────────────────────────────────────────────────────
+const Spinner = ({ text = 'Memuat...' }: { text?: string }) => (
+  <div style={S.spinnerWrap}>
+    <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
+    <span>{text}</span>
+    <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+  </div>
+);
 
 // ─── NewsManager ──────────────────────────────────────────────────────────────
 export const NewsManager = () => {
@@ -181,35 +229,56 @@ export const NewsManager = () => {
     <div style={S.page}>
       {/* Form */}
       <div style={S.card}>
-        <h3 style={S.cardTitle}>✏️ Input Berita Baru</h3>
+        <h3 style={S.cardTitle}>
+          <Pencil size={18} color="#059669" />
+          Input Berita Baru
+        </h3>
         <form onSubmit={handleUpload}>
           <div style={S.grid2}>
             <div style={S.formGroup}>
-              <label style={S.label}>Judul Berita</label>
+              <label style={S.label}>
+                <FileText size={13} color="#6b7280" />
+                Judul Berita
+              </label>
               <input style={S.input} type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Masukkan judul berita..." required />
             </div>
             <div style={S.formGroup}>
-              <label style={S.label}>Tanggal Berita</label>
+              <label style={S.label}>
+                <Calendar size={13} color="#6b7280" />
+                Tanggal Berita
+              </label>
               <input style={S.input} type="date" value={date} onChange={e => setDate(e.target.value)} required />
             </div>
           </div>
           <div style={S.formGroup}>
-            <label style={S.label}>Deskripsi</label>
+            <label style={S.label}>
+              <FileText size={13} color="#6b7280" />
+              Deskripsi
+            </label>
             <textarea style={S.textarea} value={description} onChange={e => setDescription(e.target.value)} placeholder="Tulis ringkasan berita..." required />
           </div>
           <div style={S.formGroup}>
-            <label style={S.label}>Foto Sampul (WebP)</label>
+            <label style={S.label}>
+              <Paperclip size={13} color="#6b7280" />
+              Foto Sampul (WebP)
+            </label>
             <input style={S.fileInput} type="file" accept="image/webp" onChange={e => setImage(e.target.files?.[0] || null)} required />
           </div>
           <button type="submit" disabled={uploading} style={{ ...S.btnPrimary, opacity: uploading ? 0.6 : 1 }}>
-            {uploading ? 'Menyimpan...' : '💾 Simpan Berita'}
+            {uploading
+              ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Menyimpan...</>
+              : <><Save size={15} /> Simpan Berita</>
+            }
           </button>
         </form>
       </div>
 
       {/* Table */}
       <div style={S.card}>
-        <h3 style={S.cardTitle}>📋 Riwayat Berita</h3>
+        <h3 style={S.cardTitle}>
+          <ClipboardList size={18} color="#059669" />
+          Riwayat Berita
+        </h3>
         <div style={S.overflowX}>
           <table style={S.table}>
             <thead style={S.thead}>
@@ -222,17 +291,29 @@ export const NewsManager = () => {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={4} style={S.emptyRow}>⏳ Memuat data...</td></tr>
+                <tr><td colSpan={4}><Spinner /></td></tr>
               ) : news.length === 0 ? (
-                <tr><td colSpan={4} style={S.emptyRow}>📭 Belum ada berita.</td></tr>
+                <tr>
+                  <td colSpan={4}>
+                    <div style={S.emptyState}>
+                      <Inbox size={32} strokeWidth={1.5} />
+                      <span>Belum ada berita.</span>
+                    </div>
+                  </td>
+                </tr>
               ) : news.map(item => (
                 <tr key={item.id}>
                   <td style={S.td}>{item.title}</td>
                   <td style={S.td}>{item.date}</td>
                   <td style={S.td}><span style={{ fontSize: '0.8rem', color: '#64748b' }}>{item.author}</span></td>
                   <td style={S.td}>
-                    <button style={S.btnDanger} onClick={async () => { if (confirm('Hapus berita ini?')) { await supabase.from('news').delete().eq('id', item.id); fetchNews(); } }}>
-                      🗑 Hapus
+                    <button style={S.btnDanger} onClick={async () => {
+                      if (confirm('Hapus berita ini?')) {
+                        await supabase.from('news').delete().eq('id', item.id);
+                        fetchNews();
+                      }
+                    }}>
+                      <Trash2 size={13} /> Hapus
                     </button>
                   </td>
                 </tr>
@@ -289,41 +370,67 @@ export const GalleryManager = () => {
     <div style={S.page}>
       {/* Upload Form */}
       <div style={S.card}>
-        <h3 style={S.cardTitle}>🖼️ Upload Foto Galeri</h3>
+        <h3 style={S.cardTitle}>
+          <Upload size={18} color="#059669" />
+          Upload Foto Galeri
+        </h3>
         <form onSubmit={handleUpload}>
           <div style={S.formGroup}>
-            <label style={S.label}>Kategori Foto</label>
+            <label style={S.label}>
+              <Tag size={13} color="#6b7280" />
+              Kategori Foto
+            </label>
             <select style={S.select} value={category} onChange={e => setCategory(e.target.value)} required>
               <option value="">— Pilih Kategori —</option>
               {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
             </select>
           </div>
           <div style={S.formGroup}>
-            <label style={S.label}>File Foto (WebP)</label>
+            <label style={S.label}>
+              <Paperclip size={13} color="#6b7280" />
+              File Foto (WebP)
+            </label>
             <input style={S.fileInput} type="file" accept="image/webp" onChange={e => setImage(e.target.files?.[0] || null)} required />
           </div>
           <button type="submit" disabled={uploading} style={{ ...S.btnPrimary, opacity: uploading ? 0.6 : 1 }}>
-            {uploading ? 'Mengupload...' : '☁️ Simpan / Deploy'}
+            {uploading
+              ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Mengupload...</>
+              : <><Upload size={15} /> Simpan / Deploy</>
+            }
           </button>
         </form>
       </div>
 
       {/* Gallery Grid */}
       <div style={S.card}>
-        <h3 style={S.cardTitle}>🗂️ Koleksi Galeri</h3>
+        <h3 style={S.cardTitle}>
+          <LayoutGrid size={18} color="#059669" />
+          Koleksi Galeri
+        </h3>
         {loading ? (
-          <p style={S.emptyRow}>⏳ Memuat foto...</p>
+          <Spinner text="Memuat foto..." />
         ) : images.length === 0 ? (
-          <p style={S.emptyRow}>📷 Belum ada foto.</p>
+          <div style={S.emptyState}>
+            <Image size={36} strokeWidth={1.5} />
+            <span>Belum ada foto.</span>
+          </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1rem' }}>
             {images.map(img => (
-              <div key={img.id} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', aspectRatio: '1', background: '#f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-                <img src={img.image_url} alt={img.category} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 50%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0.625rem', opacity: 0 }} className="img-overlay">
-                  <span style={{ color: 'white', fontSize: '0.72rem', fontWeight: 600, marginBottom: '0.25rem' }}>{img.category}</span>
-                  <button onClick={async () => { if (confirm('Hapus foto ini?')) { await supabase.from('gallery').delete().eq('id', img.id); fetchImages(); } }} style={{ background: '#dc2626', color: 'white', border: 'none', borderRadius: '6px', padding: '0.25rem 0.5rem', fontSize: '0.72rem', cursor: 'pointer', width: '100%' }}>
-                    Hapus
+              <div key={img.id} className="gallery-thumb" style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', aspectRatio: '1', background: '#f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                <img src={img.image_url} alt={img.category} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                <div className="gallery-overlay" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 55%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0.625rem' }}>
+                  <span style={{ color: 'white', fontSize: '0.72rem', fontWeight: 600, marginBottom: '0.375rem' }}>{img.category}</span>
+                  <button
+                    onClick={async () => {
+                      if (confirm('Hapus foto ini?')) {
+                        await supabase.from('gallery').delete().eq('id', img.id);
+                        fetchImages();
+                      }
+                    }}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '6px', padding: '0.3rem 0.5rem', fontSize: '0.72rem', cursor: 'pointer', width: '100%', fontFamily: "'Inter', sans-serif" }}
+                  >
+                    <Trash2 size={11} /> Hapus
                   </button>
                 </div>
               </div>
@@ -333,8 +440,9 @@ export const GalleryManager = () => {
       </div>
 
       <style>{`
-        .img-overlay { opacity: 0 !important; transition: opacity 0.2s; }
-        div:hover > .img-overlay { opacity: 1 !important; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .gallery-thumb .gallery-overlay { opacity: 0; transition: opacity 0.2s ease; }
+        .gallery-thumb:hover .gallery-overlay { opacity: 1; }
       `}</style>
     </div>
   );
@@ -388,25 +496,40 @@ export const UserManager = () => {
     <div style={S.page}>
       {/* Form */}
       <div style={S.card}>
-        <h3 style={S.cardTitle}>👤 Tambah Admin Baru</h3>
+        <h3 style={S.cardTitle}>
+          <UserPlus size={18} color="#059669" />
+          Tambah Admin Baru
+        </h3>
         <form onSubmit={handleAddUser} style={{ maxWidth: '440px' }}>
           <div style={S.formGroup}>
-            <label style={S.label}>Email Admin</label>
+            <label style={S.label}>
+              <FileText size={13} color="#6b7280" />
+              Email Admin
+            </label>
             <input style={S.input} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@sekolah.com" required />
           </div>
           <div style={S.formGroup}>
-            <label style={S.label}>Password Sementara</label>
+            <label style={S.label}>
+              <AlertCircle size={13} color="#6b7280" />
+              Password Sementara
+            </label>
             <input style={S.input} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Minimal 6 karakter" required />
           </div>
           <button type="submit" disabled={loading} style={{ ...S.btnPrimary, opacity: loading ? 0.6 : 1 }}>
-            {loading ? 'Mendaftarkan...' : '➕ Daftarkan Admin'}
+            {loading
+              ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Mendaftarkan...</>
+              : <><Plus size={15} /> Daftarkan Admin</>
+            }
           </button>
         </form>
       </div>
 
       {/* Table */}
       <div style={S.card}>
-        <h3 style={S.cardTitle}>👥 Daftar Admin / User</h3>
+        <h3 style={S.cardTitle}>
+          <Users size={18} color="#059669" />
+          Daftar Admin / User
+        </h3>
         <div style={S.overflowX}>
           <table style={S.table}>
             <thead style={S.thead}>
@@ -418,25 +541,37 @@ export const UserManager = () => {
             </thead>
             <tbody>
               {fetching ? (
-                <tr><td colSpan={3} style={S.emptyRow}>⏳ Memuat data...</td></tr>
+                <tr><td colSpan={3}><Spinner /></td></tr>
               ) : profiles.length === 0 ? (
-                <tr><td colSpan={3} style={S.emptyRow}>📭 Belum ada data user.</td></tr>
+                <tr>
+                  <td colSpan={3}>
+                    <div style={S.emptyState}>
+                      <Inbox size={32} strokeWidth={1.5} />
+                      <span>Belum ada data user.</span>
+                    </div>
+                  </td>
+                </tr>
               ) : profiles.map(user => (
                 <tr key={user.id}>
                   <td style={S.td}>{user.email || user.id}</td>
                   <td style={S.td}><span style={S.badge}>{user.role || 'Admin'}</span></td>
                   <td style={S.td}>
-                    <button style={S.btnDanger} onClick={() => handleDeleteUser(user.id)}>🗑 Hapus Akses</button>
+                    <button style={S.btnDanger} onClick={() => handleDeleteUser(user.id)}>
+                      <Trash2 size={13} /> Hapus Akses
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p style={{ marginTop: '1rem', fontSize: '0.75rem', color: '#94a3b8', fontStyle: 'italic' }}>
-          * Menghapus di sini hanya menghapus dari tabel profiles. Untuk hapus akun permanen, gunakan Dashboard Supabase.
+        <p style={{ marginTop: '1rem', fontSize: '0.75rem', color: '#94a3b8', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+          <AlertCircle size={12} />
+          Menghapus di sini hanya menghapus dari tabel profiles. Untuk hapus akun permanen, gunakan Dashboard Supabase.
         </p>
       </div>
+
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 };
