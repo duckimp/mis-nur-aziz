@@ -1,11 +1,18 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { supabase } from '../lib/supabase';
 
 const subjects = [
 	{ group: 'Kelompok A (Umum)', items: ['Pendidikan Pancasila', 'Bahasa Indonesia', 'Matematika', 'Ilmu Pengetahuan Alam dan Sosial', 'Seni Budaya dan Prakarya', 'Pendidikan Jasmani, Olahraga & Kesehatan', 'Bahasa Inggris', 'Muatan Lokal (Bahasa Jawa)'] },
 	{ group: 'Kelompok B (Agama)', items: ['Aqidah Akhlak', 'Al-quran & Hadits', 'Fiqih', 'Bahasa Arab', 'Sejarah Kebudayaan Islam'] },
 	{ group: 'Program Unggulan', items: ['Mabits', 'TPQ',] },
 ];
+
+const { data: documents } = await supabase
+  .from('documents')
+  .select('*')
+  .eq('is_active', true)
+  .order('created_at', { ascending: false });
 ---
 
 <Layout title="Informasi Akademik">
@@ -43,30 +50,33 @@ const subjects = [
 		<div class="container">
 			<h2 class="section-title">Unduh Dokumen</h2>
 			<div class="download-grid">
-				<div class="download-item">
-					<div class="icon">📄</div>
-					<div class="info">
-						<h4>Kalender Akademik 2024/2025</h4>
-						<p>Format: PDF | Ukuran: 1.2 MB</p>
-					</div>
-					<a href="/pdf/kalender-akademik.pdf" class="btn btn-primary" download>Unduh</a>
-				</div>
-				<div class="download-item">
-					<div class="icon">📄</div>
-					<div class="info">
-						<h4>Panduan Siswa & Tata Tertib</h4>
-						<p>Format: PDF | Ukuran: 2.5 MB</p>
-					</div>
-					<a href="/pdf/panduan-siswa.pdf" class="btn btn-primary" download>Unduh</a>
-				</div>
-				<div class="download-item">
-					<div class="icon">📄</div>
-					<div class="info">
-						<h4>Brosur Sekolah</h4>
-						<p>Format: PDF | Ukuran: 2.4 MB</p>
-					</div>
-					<a href="/pdf/brosur-sekolah.pdf" class="btn btn-primary" download>Unduh</a>
-				</div>
+				{documents && documents.length > 0 ? (
+					documents.map(doc => {
+						const fileUrl = doc.file_url || '';
+						let ext = 'PDF';
+						try {
+							const cleanUrl = fileUrl.split('?')[0];
+							const parts = cleanUrl.split('.');
+							if (parts.length > 1) {
+								ext = parts.pop().toUpperCase();
+							}
+						} catch (e) {}
+						return (
+							<div class="download-item">
+								<div class="icon">📄</div>
+								<div class="info">
+									<h4>{doc.name}</h4>
+									<p>Format: {ext} | Ukuran: {doc.file_size}</p>
+								</div>
+								<a href={fileUrl} class="btn btn-primary" target="_blank" rel="noopener noreferrer">Unduh</a>
+							</div>
+						);
+					})
+				) : (
+					<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-style: italic;">
+						Belum ada dokumen yang tersedia untuk diunduh saat ini.
+					</p>
+				)}
 			</div>
 		</div>
 	</section>

@@ -7,7 +7,6 @@ const navItems = [
   { name: 'Galeri', href: '/galeri' },
   { name: 'PPDB', href: '/ppdb' },
   { name: 'Kontak', href: '/kontak' },
-  { name: 'Login', href: '/admin/login' },
 ];
 ---
 
@@ -28,6 +27,10 @@ const navItems = [
       {navItems.map(item => (
         <a href={item.href} class="nav-item">{item.name}</a>
       ))}
+      <button id="open-login-modal" class="btn-login-nav" aria-label="Login Admin">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
+        Login
+      </button>
       <a href="/ppdb" class="btn btn-primary nav-cta">Daftar Sekarang</a>
     </nav>
   </div>
@@ -101,6 +104,27 @@ const navItems = [
     width: 100%;
   }
 
+  .btn-login-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--primary);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s ease;
+  }
+
+  .btn-login-nav:hover {
+    background: var(--primary);
+    color: white;
+  }
+
   .mobile-menu-btn {
     display: none;
     flex-direction: column;
@@ -165,6 +189,16 @@ const navItems = [
   navLinks.forEach(link => {
     if (link.getAttribute('href') === currentPath) {
       link.classList.add('active');
+    }
+  });
+
+  // Open login modal
+  document.getElementById('open-login-modal')?.addEventListener('click', () => {
+    const modal = document.getElementById('login-modal');
+    if (modal) {
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => document.getElementById('login-email')?.focus(), 100);
     }
   });
 </script>

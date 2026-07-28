@@ -1,0 +1,8 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { DocumentManager } from '../../components/admin/DocumentManager';
+---
+
+<AdminLayout title="Manajemen Dokumen" activeMenu="Dokumen">
+  <DocumentManager client:load />
+</AdminLayout>

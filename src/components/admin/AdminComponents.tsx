@@ -190,8 +190,28 @@ export const NewsManager = () => {
   const [date, setDate] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [userRole, setUserRole] = useState<string>('guru');
 
-  useEffect(() => { fetchNews(); }, []);
+  useEffect(() => {
+    fetchUserRole();
+    fetchNews();
+  }, []);
+
+  const fetchUserRole = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        if (profile) {
+          setUserRole(profile.role || 'guru');
+        }
+      }
+    } catch (e) {}
+  };
 
   const fetchNews = async () => {
     const { data } = await supabase.from('news').select('*').order('created_at', { ascending: false });
@@ -307,14 +327,18 @@ export const NewsManager = () => {
                   <td style={S.td}>{item.date}</td>
                   <td style={S.td}><span style={{ fontSize: '0.8rem', color: '#64748b' }}>{item.author}</span></td>
                   <td style={S.td}>
-                    <button style={S.btnDanger} onClick={async () => {
-                      if (confirm('Hapus berita ini?')) {
-                        await supabase.from('news').delete().eq('id', item.id);
-                        fetchNews();
-                      }
-                    }}>
-                      <Trash2 size={13} /> Hapus
-                    </button>
+                    {userRole === 'admin' ? (
+                      <button style={S.btnDanger} onClick={async () => {
+                        if (confirm('Hapus berita ini?')) {
+                          await supabase.from('news').delete().eq('id', item.id);
+                          fetchNews();
+                        }
+                      }}>
+                        <Trash2 size={13} /> Hapus
+                      </button>
+                    ) : (
+                      <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic' }}>No Access</span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -333,10 +357,30 @@ export const GalleryManager = () => {
   const [category, setCategory] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [userRole, setUserRole] = useState<string>('guru');
 
   const categories = ['KBM', 'Eskul', 'Wisuda', 'Lainnya'];
 
-  useEffect(() => { fetchImages(); }, []);
+  useEffect(() => {
+    fetchUserRole();
+    fetchImages();
+  }, []);
+
+  const fetchUserRole = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        if (profile) {
+          setUserRole(profile.role || 'guru');
+        }
+      }
+    } catch (e) {}
+  };
 
   const fetchImages = async () => {
     const { data } = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
@@ -420,18 +464,22 @@ export const GalleryManager = () => {
               <div key={img.id} className="gallery-thumb" style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', aspectRatio: '1', background: '#f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
                 <img src={img.image_url} alt={img.category} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 <div className="gallery-overlay" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 55%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0.625rem' }}>
-                  <span style={{ color: 'white', fontSize: '0.72rem', fontWeight: 600, marginBottom: '0.375rem' }}>{img.category}</span>
-                  <button
-                    onClick={async () => {
-                      if (confirm('Hapus foto ini?')) {
-                        await supabase.from('gallery').delete().eq('id', img.id);
-                        fetchImages();
-                      }
-                    }}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '6px', padding: '0.3rem 0.5rem', fontSize: '0.72rem', cursor: 'pointer', width: '100%', fontFamily: "'Inter', sans-serif" }}
-                  >
-                    <Trash2 size={11} /> Hapus
-                  </button>
+                  <span style={{ color: 'white', fontSize: '0.72rem', fontWeight: 600, marginBottom: userRole === 'admin' ? '0.375rem' : '0' }}>{img.category}</span>
+                  {userRole === 'admin' ? (
+                    <button
+                      onClick={async () => {
+                        if (confirm('Hapus foto ini?')) {
+                          await supabase.from('gallery').delete().eq('id', img.id);
+                          fetchImages();
+                        }
+                      }}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '6px', padding: '0.3rem 0.5rem', fontSize: '0.72rem', cursor: 'pointer', width: '100%', fontFamily: "'Inter', sans-serif" }}
+                    >
+                      <Trash2 size={11} /> Hapus
+                    </button>
+                  ) : (
+                    <span style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.65rem', fontStyle: 'italic', background: 'rgba(0,0,0,0.3)', padding: '0.2rem', borderRadius: '4px', textAlign: 'center' }}>Admin Only to Delete</span>
+                  )}
                 </div>
               </div>
             ))}
