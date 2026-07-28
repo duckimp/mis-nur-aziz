@@ -1,0 +1,442 @@
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
+
+// ─── Shared Styles ───────────────────────────────────────────────────────────
+const S = {
+  page: { display: 'flex', flexDirection: 'column' as const, gap: '1.5rem' },
+  card: {
+    background: '#ffffff',
+    borderRadius: '16px',
+    padding: '1.5rem',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)',
+    border: '1px solid #f1f5f9',
+  },
+  cardTitle: {
+    fontFamily: "'Outfit', sans-serif",
+    fontSize: '1rem',
+    fontWeight: 700,
+    color: '#0f172a',
+    marginBottom: '1.25rem',
+    paddingBottom: '0.75rem',
+    borderBottom: '1px solid #f1f5f9',
+  },
+  formGroup: { display: 'flex', flexDirection: 'column' as const, gap: '0.375rem', marginBottom: '1rem' },
+  label: { fontSize: '0.8rem', fontWeight: 600, color: '#374151', letterSpacing: '0.02em' },
+  input: {
+    width: '100%',
+    padding: '0.625rem 0.875rem',
+    border: '1.5px solid #e2e8f0',
+    borderRadius: '10px',
+    fontSize: '0.875rem',
+    color: '#1e293b',
+    background: '#fafafa',
+    outline: 'none',
+    transition: 'border-color 0.15s, box-shadow 0.15s',
+    fontFamily: "'Inter', sans-serif",
+  },
+  textarea: {
+    width: '100%',
+    padding: '0.625rem 0.875rem',
+    border: '1.5px solid #e2e8f0',
+    borderRadius: '10px',
+    fontSize: '0.875rem',
+    color: '#1e293b',
+    background: '#fafafa',
+    outline: 'none',
+    resize: 'vertical' as const,
+    minHeight: '120px',
+    fontFamily: "'Inter', sans-serif",
+    lineHeight: 1.6,
+  },
+  select: {
+    width: '100%',
+    padding: '0.625rem 0.875rem',
+    border: '1.5px solid #e2e8f0',
+    borderRadius: '10px',
+    fontSize: '0.875rem',
+    color: '#1e293b',
+    background: '#fafafa',
+    outline: 'none',
+    cursor: 'pointer',
+    fontFamily: "'Inter', sans-serif",
+  },
+  fileInput: {
+    width: '100%',
+    padding: '0.5rem 0',
+    fontSize: '0.875rem',
+    color: '#475569',
+    cursor: 'pointer',
+  },
+  btnPrimary: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    padding: '0.625rem 1.25rem',
+    background: 'linear-gradient(135deg, #059669, #047857)',
+    color: '#ffffff',
+    borderRadius: '10px',
+    border: 'none',
+    fontSize: '0.875rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'opacity 0.15s, transform 0.15s',
+    fontFamily: "'Inter', sans-serif",
+  },
+  btnDanger: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.375rem',
+    padding: '0.375rem 0.75rem',
+    background: '#fef2f2',
+    color: '#dc2626',
+    borderRadius: '8px',
+    border: '1px solid #fecaca',
+    fontSize: '0.8rem',
+    fontWeight: 500,
+    cursor: 'pointer',
+    transition: 'background 0.15s',
+    fontFamily: "'Inter', sans-serif",
+  },
+  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' },
+  table: { width: '100%', borderCollapse: 'collapse' as const },
+  thead: { background: '#f8fafc' },
+  th: {
+    padding: '0.75rem 1rem',
+    textAlign: 'left' as const,
+    fontSize: '0.75rem',
+    fontWeight: 700,
+    color: '#64748b',
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase' as const,
+    borderBottom: '1px solid #e2e8f0',
+  },
+  td: {
+    padding: '0.875rem 1rem',
+    fontSize: '0.875rem',
+    color: '#374151',
+    borderBottom: '1px solid #f1f5f9',
+    verticalAlign: 'middle' as const,
+  },
+  emptyRow: { textAlign: 'center' as const, color: '#94a3b8', padding: '2.5rem 1rem', fontSize: '0.875rem' },
+  badge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    padding: '0.2rem 0.6rem',
+    background: '#dcfce7',
+    color: '#16a34a',
+    borderRadius: '20px',
+    fontSize: '0.72rem',
+    fontWeight: 700,
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.05em',
+  },
+  overflowX: { overflowX: 'auto' as const },
+};
+
+// ─── NewsManager ──────────────────────────────────────────────────────────────
+export const NewsManager = () => {
+  const [news, setNews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [date, setDate] = useState('');
+  const [image, setImage] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => { fetchNews(); }, []);
+
+  const fetchNews = async () => {
+    const { data } = await supabase.from('news').select('*').order('created_at', { ascending: false });
+    if (data) setNews(data);
+    setLoading(false);
+  };
+
+  const handleUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUploading(true);
+    try {
+      let imageUrl = '';
+      if (image) {
+        const fileExt = image.name.split('.').pop();
+        const filePath = `news/${Math.random()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage.from('images').upload(filePath, image);
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(filePath);
+        imageUrl = publicUrl;
+      }
+      const { data: { user } } = await supabase.auth.getUser();
+      const { error } = await supabase.from('news').insert([{ title, description, date, image_url: imageUrl, author: user?.email }]);
+      if (error) throw error;
+      setTitle(''); setDescription(''); setDate(''); setImage(null);
+      fetchNews();
+      alert('Berita berhasil disimpan!');
+    } catch (error: any) {
+      alert(error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div style={S.page}>
+      {/* Form */}
+      <div style={S.card}>
+        <h3 style={S.cardTitle}>✏️ Input Berita Baru</h3>
+        <form onSubmit={handleUpload}>
+          <div style={S.grid2}>
+            <div style={S.formGroup}>
+              <label style={S.label}>Judul Berita</label>
+              <input style={S.input} type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Masukkan judul berita..." required />
+            </div>
+            <div style={S.formGroup}>
+              <label style={S.label}>Tanggal Berita</label>
+              <input style={S.input} type="date" value={date} onChange={e => setDate(e.target.value)} required />
+            </div>
+          </div>
+          <div style={S.formGroup}>
+            <label style={S.label}>Deskripsi</label>
+            <textarea style={S.textarea} value={description} onChange={e => setDescription(e.target.value)} placeholder="Tulis ringkasan berita..." required />
+          </div>
+          <div style={S.formGroup}>
+            <label style={S.label}>Foto Sampul (WebP)</label>
+            <input style={S.fileInput} type="file" accept="image/webp" onChange={e => setImage(e.target.files?.[0] || null)} required />
+          </div>
+          <button type="submit" disabled={uploading} style={{ ...S.btnPrimary, opacity: uploading ? 0.6 : 1 }}>
+            {uploading ? 'Menyimpan...' : '💾 Simpan Berita'}
+          </button>
+        </form>
+      </div>
+
+      {/* Table */}
+      <div style={S.card}>
+        <h3 style={S.cardTitle}>📋 Riwayat Berita</h3>
+        <div style={S.overflowX}>
+          <table style={S.table}>
+            <thead style={S.thead}>
+              <tr>
+                <th style={S.th}>Judul</th>
+                <th style={S.th}>Tanggal</th>
+                <th style={S.th}>Input Oleh</th>
+                <th style={S.th}>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={4} style={S.emptyRow}>⏳ Memuat data...</td></tr>
+              ) : news.length === 0 ? (
+                <tr><td colSpan={4} style={S.emptyRow}>📭 Belum ada berita.</td></tr>
+              ) : news.map(item => (
+                <tr key={item.id}>
+                  <td style={S.td}>{item.title}</td>
+                  <td style={S.td}>{item.date}</td>
+                  <td style={S.td}><span style={{ fontSize: '0.8rem', color: '#64748b' }}>{item.author}</span></td>
+                  <td style={S.td}>
+                    <button style={S.btnDanger} onClick={async () => { if (confirm('Hapus berita ini?')) { await supabase.from('news').delete().eq('id', item.id); fetchNews(); } }}>
+                      🗑 Hapus
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── GalleryManager ───────────────────────────────────────────────────────────
+export const GalleryManager = () => {
+  const [images, setImages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [category, setCategory] = useState('');
+  const [image, setImage] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const categories = ['KBM', 'Eskul', 'Wisuda', 'Lainnya'];
+
+  useEffect(() => { fetchImages(); }, []);
+
+  const fetchImages = async () => {
+    const { data } = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
+    if (data) setImages(data);
+    setLoading(false);
+  };
+
+  const handleUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!category || !image) return alert('Pilih kategori dan foto!');
+    setUploading(true);
+    try {
+      const fileExt = image.name.split('.').pop();
+      const filePath = `gallery/${Math.random()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('images').upload(filePath, image);
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(filePath);
+      const { error } = await supabase.from('gallery').insert([{ category, image_url: publicUrl }]);
+      if (error) throw error;
+      setCategory(''); setImage(null);
+      fetchImages();
+      alert('Foto berhasil diupload!');
+    } catch (error: any) {
+      alert(error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div style={S.page}>
+      {/* Upload Form */}
+      <div style={S.card}>
+        <h3 style={S.cardTitle}>🖼️ Upload Foto Galeri</h3>
+        <form onSubmit={handleUpload}>
+          <div style={S.formGroup}>
+            <label style={S.label}>Kategori Foto</label>
+            <select style={S.select} value={category} onChange={e => setCategory(e.target.value)} required>
+              <option value="">— Pilih Kategori —</option>
+              {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+            </select>
+          </div>
+          <div style={S.formGroup}>
+            <label style={S.label}>File Foto (WebP)</label>
+            <input style={S.fileInput} type="file" accept="image/webp" onChange={e => setImage(e.target.files?.[0] || null)} required />
+          </div>
+          <button type="submit" disabled={uploading} style={{ ...S.btnPrimary, opacity: uploading ? 0.6 : 1 }}>
+            {uploading ? 'Mengupload...' : '☁️ Simpan / Deploy'}
+          </button>
+        </form>
+      </div>
+
+      {/* Gallery Grid */}
+      <div style={S.card}>
+        <h3 style={S.cardTitle}>🗂️ Koleksi Galeri</h3>
+        {loading ? (
+          <p style={S.emptyRow}>⏳ Memuat foto...</p>
+        ) : images.length === 0 ? (
+          <p style={S.emptyRow}>📷 Belum ada foto.</p>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1rem' }}>
+            {images.map(img => (
+              <div key={img.id} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', aspectRatio: '1', background: '#f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                <img src={img.image_url} alt={img.category} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 50%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0.625rem', opacity: 0 }} className="img-overlay">
+                  <span style={{ color: 'white', fontSize: '0.72rem', fontWeight: 600, marginBottom: '0.25rem' }}>{img.category}</span>
+                  <button onClick={async () => { if (confirm('Hapus foto ini?')) { await supabase.from('gallery').delete().eq('id', img.id); fetchImages(); } }} style={{ background: '#dc2626', color: 'white', border: 'none', borderRadius: '6px', padding: '0.25rem 0.5rem', fontSize: '0.72rem', cursor: 'pointer', width: '100%' }}>
+                    Hapus
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        .img-overlay { opacity: 0 !important; transition: opacity 0.2s; }
+        div:hover > .img-overlay { opacity: 1 !important; }
+      `}</style>
+    </div>
+  );
+};
+
+// ─── UserManager ──────────────────────────────────────────────────────────────
+export const UserManager = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [profiles, setProfiles] = useState<any[]>([]);
+  const [fetching, setFetching] = useState(true);
+
+  useEffect(() => { fetchProfiles(); }, []);
+
+  const fetchProfiles = async () => {
+    const { data } = await supabase.from('profiles').select('*');
+    if (data) setProfiles(data);
+    setFetching(false);
+  };
+
+  const handleAddUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) throw error;
+      await supabase.from('profiles').insert([{ id: data.user?.id, email, role: 'admin' }]);
+      alert('User berhasil didaftarkan! Cek email untuk konfirmasi.');
+      setEmail(''); setPassword('');
+      fetchProfiles();
+    } catch (error: any) {
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (id: string) => {
+    if (!confirm('Hapus akses user ini dari sistem?')) return;
+    try {
+      const { error } = await supabase.from('profiles').delete().eq('id', id);
+      if (error) throw error;
+      fetchProfiles();
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
+
+  return (
+    <div style={S.page}>
+      {/* Form */}
+      <div style={S.card}>
+        <h3 style={S.cardTitle}>👤 Tambah Admin Baru</h3>
+        <form onSubmit={handleAddUser} style={{ maxWidth: '440px' }}>
+          <div style={S.formGroup}>
+            <label style={S.label}>Email Admin</label>
+            <input style={S.input} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@sekolah.com" required />
+          </div>
+          <div style={S.formGroup}>
+            <label style={S.label}>Password Sementara</label>
+            <input style={S.input} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Minimal 6 karakter" required />
+          </div>
+          <button type="submit" disabled={loading} style={{ ...S.btnPrimary, opacity: loading ? 0.6 : 1 }}>
+            {loading ? 'Mendaftarkan...' : '➕ Daftarkan Admin'}
+          </button>
+        </form>
+      </div>
+
+      {/* Table */}
+      <div style={S.card}>
+        <h3 style={S.cardTitle}>👥 Daftar Admin / User</h3>
+        <div style={S.overflowX}>
+          <table style={S.table}>
+            <thead style={S.thead}>
+              <tr>
+                <th style={S.th}>Email</th>
+                <th style={S.th}>Role</th>
+                <th style={S.th}>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fetching ? (
+                <tr><td colSpan={3} style={S.emptyRow}>⏳ Memuat data...</td></tr>
+              ) : profiles.length === 0 ? (
+                <tr><td colSpan={3} style={S.emptyRow}>📭 Belum ada data user.</td></tr>
+              ) : profiles.map(user => (
+                <tr key={user.id}>
+                  <td style={S.td}>{user.email || user.id}</td>
+                  <td style={S.td}><span style={S.badge}>{user.role || 'Admin'}</span></td>
+                  <td style={S.td}>
+                    <button style={S.btnDanger} onClick={() => handleDeleteUser(user.id)}>🗑 Hapus Akses</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p style={{ marginTop: '1rem', fontSize: '0.75rem', color: '#94a3b8', fontStyle: 'italic' }}>
+          * Menghapus di sini hanya menghapus dari tabel profiles. Untuk hapus akun permanen, gunakan Dashboard Supabase.
+        </p>
+      </div>
+    </div>
+  );
+};
