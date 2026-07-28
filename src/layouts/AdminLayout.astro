@@ -468,6 +468,6 @@ const menuItems = [
   const logoutBtn = document.getElementById('logoutBtn');
   logoutBtn?.addEventListener('click', async () => {
     await supabase.auth.signOut();
-    window.location.href = '/admin/login';
+    window.location.href = '/';
   });
 </script>
