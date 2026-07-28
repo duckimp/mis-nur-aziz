@@ -31,10 +31,22 @@ const resolvedOgUrl = ogUrl || siteUrl;
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content={description} />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/png" href="/images/logo.png" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title} | MIS Nur Aziz</title>
+
+		<!-- Resource Hints: preconnect untuk mempercepat koneksi eksternal -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link rel="preconnect" href="https://wduoyaqmfkjnbkuqxsav.supabase.co" />
+
+		<!-- Google Fonts: non-blocking via link (bukan @import di CSS) -->
+		<link
+			href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+			rel="stylesheet"
+		/>
+
 		<!-- Open Graph / WhatsApp / Social Preview -->
 		<meta property="og:type" content={ogType} />
 		<meta property="og:title" content={`${title} | MIS Nur Aziz`} />

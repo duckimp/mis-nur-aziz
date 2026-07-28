@@ -29,7 +29,7 @@ const galleryItems = galleryData || [];
 					return (
 						<div class="gallery-item animate-up" style={{ animationDelay: `${index * 0.1}s` }}>
 							<div class="gallery-img-container" data-index={index} data-category={item.category} data-tags={item.tags || ''}>
-								<img src={item.image_url} alt={item.category} class="gallery-img" />
+								<img src={item.image_url} alt={item.category} class="gallery-img" loading="lazy" decoding="async" width="400" height="400" />
 								<div class="gallery-overlay">
 									<span class="category-badge">{item.category}</span>
 									<h3>{item.category}</h3>

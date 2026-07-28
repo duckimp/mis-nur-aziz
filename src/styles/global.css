@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+/* Google Fonts sudah dimuat di Layout.astro via <link> tag (non-blocking) */
 @import "tailwindcss";
 @source "../**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}";
 

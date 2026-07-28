@@ -26,7 +26,14 @@ const news = newsData || [];
 				</div>
 			</div>
 			<div class="hero-image">
-				<img src="/images/hero.jpg" alt="MI Nur Aziz" class="hero-img-actual" />
+				<img 
+					src="/images/hero.jpg" 
+					alt="MI Nur Aziz" 
+					class="hero-img-actual"
+					fetchpriority="high"
+					width="600"
+					height="500"
+				/>
 				<div class="glass-box">Unggul & Berakhlak</div>
 			</div>
 		</div>
@@ -55,7 +62,15 @@ const news = newsData || [];
 				{news.map(item => (
 					<a href={`/berita/${item.slug || item.id}`} class="news-card">
 						<div class="news-img-container">
-							<img src={item.image_url} alt={item.title} class="news-img-actual-card" />
+							<img 
+								src={item.image_url} 
+								alt={item.title} 
+								class="news-img-actual-card"
+								loading="lazy"
+								decoding="async"
+								width="400"
+								height="200"
+							/>
 						</div>
 						<div class="news-content">
 							<span class="news-date">{item.date}</span>
