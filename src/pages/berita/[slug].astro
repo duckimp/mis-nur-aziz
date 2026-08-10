@@ -149,7 +149,9 @@ const formattedDate = formatDate(article.date);
 
 <style>
   .article-inline-figure {
-    margin: 2rem 0;
+    margin: 2rem auto;
+    width: 70%;
+    max-width: 100%;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -159,9 +161,15 @@ const formattedDate = formatDate(article.date);
   .article-inline-img {
     width: 100%;
     height: auto;
-    max-height: 500px;
-    object-fit: cover;
+    max-height: none;
+    object-fit: contain;
     display: block;
+  }
+
+  @media (max-width: 768px) {
+    .article-inline-figure {
+      width: 100%;
+    }
   }
 
   /* ── Hero ─────────────────────────────────────────────────────────────── */
