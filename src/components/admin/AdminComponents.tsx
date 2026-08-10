@@ -283,12 +283,10 @@ export const NewsManager = () => {
     try {
       let imageUrl = '';
       if (image) {
-        setUploadStatus('Mengompresi & konversi ke WebP otomatis (mohon bersabar)...');
-        
-        // Kompres dan konversi ke WebP di browser
+        setUploadStatus('Mengompresi & konversi foto sampul ke WebP...');
         const webpBlob = await compressAndConvertToWebp(image);
         
-        setUploadStatus('Mengunggah gambar terkompresi ke storage...');
+        setUploadStatus('Mengunggah foto sampul ke storage...');
         const filePath = `news/${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
         
         const { error: uploadError } = await supabase.storage
@@ -308,10 +306,44 @@ export const NewsManager = () => {
       const { error } = await supabase.from('news').insert([{ title, slug: finalSlug, description, date, image_url: imageUrl, author: user?.email }]);
       if (error) throw error;
       setTitle(''); setSlug(''); setDescription(''); setDate(''); setImage(null);
+      
+      const fileInput1 = document.getElementById('news-cover-input') as HTMLInputElement;
+      if (fileInput1) fileInput1.value = '';
+      const fileInput2 = document.getElementById('news-inline-input') as HTMLInputElement;
+      if (fileInput2) fileInput2.value = '';
+
       fetchNews();
       alert('Berita berhasil disimpan!');
     } catch (error: any) {
       alert(error.message);
+    } finally {
+      setUploading(false);
+      setUploadStatus('');
+    }
+  };
+
+  const handleInlineImageUpload = async (file: File) => {
+    if (!file) return;
+    setUploading(true);
+    setUploadStatus('Mengompresi & mengunggah gambar ke teks...');
+    try {
+      const webpBlob = await compressAndConvertToWebp(file);
+      const filePath = `news/content_${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(filePath, webpBlob, {
+          contentType: 'image/webp'
+        });
+        
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(filePath);
+      
+      // Sisipkan tag [img:publicUrl] ke dalam textarea deskripsi
+      setDescription(prev => prev + `\n\n[img:${publicUrl}]\n\n`);
+      alert('Gambar berhasil disisipkan ke dalam deskripsi!');
+    } catch (error: any) {
+      alert('Gagal mengunggah gambar: ' + error.message);
     } finally {
       setUploading(false);
       setUploadStatus('');
@@ -352,18 +384,43 @@ export const NewsManager = () => {
             <span style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '2px' }}>URL: /berita/<strong style={{ color: '#059669' }}>{slug || 'judul-berita'}</strong></span>
           </div>
           <div style={S.formGroup}>
-            <label style={S.label}>
-              <FileText size={13} color="#6b7280" />
-              Deskripsi
-            </label>
-            <textarea className="admin-textarea" style={S.textarea} value={description} onChange={e => setDescription(e.target.value)} placeholder="Tulis ringkasan berita..." required />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+              <label style={{ ...S.label, margin: 0 }}>
+                <FileText size={13} color="#6b7280" />
+                Deskripsi & Penyisipan Gambar di Tengah Artikel
+              </label>
+              <div>
+                <input 
+                  id="news-inline-input"
+                  type="file" 
+                  accept="image/*" 
+                  style={{ display: 'none' }} 
+                  onChange={e => {
+                    if (e.target.files?.[0]) {
+                      handleInlineImageUpload(e.target.files[0]);
+                    }
+                  }} 
+                />
+                <button 
+                  type="button" 
+                  onClick={() => document.getElementById('news-inline-input')?.click()}
+                  style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '0.25rem 0.6rem', fontSize: '0.72rem', fontWeight: 600, color: '#334155', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                >
+                  <Upload size={12} color="#059669" /> + Sisip Foto ke Teks
+                </button>
+              </div>
+            </div>
+            <textarea className="admin-textarea" style={{ ...S.textarea, minHeight: '180px' }} value={description} onChange={e => setDescription(e.target.value)} placeholder="Tulis paragraf 1... Klik '+ Sisip Foto ke Teks' untuk menyisipkan gambar di sini, lalu lanjutkan paragraf berikutnya..." required />
+            <span style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '3px', display: 'block' }}>
+              💡 Tips: Tag <code style={{ color: '#059669', background: '#f8fafc', padding: '0.1rem 0.3rem', borderRadius: '4px' }}>[img:https://...]</code> akan otomatis dirender menjadi foto profesional di tengah artikel.
+            </span>
           </div>
           <div style={S.formGroup}>
             <label style={S.label}>
               <Paperclip size={13} color="#6b7280" />
-              Foto Sampul (Mendukung JPG, PNG, WebP — Otomatis dikompres & dikonversi)
+              Foto Sampul (Thumbnail Utama)
             </label>
-            <input style={S.fileInput} type="file" accept="image/*" onChange={e => setImage(e.target.files?.[0] || null)} required />
+            <input id="news-cover-input" style={S.fileInput} type="file" accept="image/*" onChange={e => setImage(e.target.files?.[0] || null)} required />
           </div>
           <button type="submit" disabled={uploading} style={{ ...S.btnPrimary, opacity: uploading ? 0.6 : 1 }} className="admin-btn">
             {uploading
@@ -437,7 +494,7 @@ export const GalleryManager = () => {
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState('');
   const [tags, setTags] = useState('');
-  const [image, setImage] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState('');
   const [userRole, setUserRole] = useState<string>('guru');
@@ -471,39 +528,47 @@ export const GalleryManager = () => {
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!category.trim() || !image) return alert('Kategori dan foto wajib diisi!');
+    if (!category.trim() || imageFiles.length === 0) return alert('Kategori dan minimal satu foto wajib diisi!');
     setUploading(true);
     setUploadStatus('Mempersiapkan...');
     try {
-      setUploadStatus('Mengompresi & konversi ke WebP otomatis (mohon bersabar)...');
-      
-      // Kompres dan konversi ke WebP di browser
-      const webpBlob = await compressAndConvertToWebp(image);
-      
-      setUploadStatus('Mengunggah gambar terkompresi ke storage...');
-      const filePath = `gallery/${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('images')
-        .upload(filePath, webpBlob, {
-          contentType: 'image/webp'
-        });
+      let successCount = 0;
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i];
+        setUploadStatus(`Mengompresi & konversi foto ${i + 1} dari ${imageFiles.length} ke WebP...`);
         
-      if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(filePath);
+        const webpBlob = await compressAndConvertToWebp(file);
+        
+        setUploadStatus(`Mengunggah foto ${i + 1} dari ${imageFiles.length} ke storage...`);
+        const filePath = `gallery/${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('images')
+          .upload(filePath, webpBlob, {
+            contentType: 'image/webp'
+          });
+          
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(filePath);
+        
+        setUploadStatus(`Menyimpan data foto ${i + 1} dari ${imageFiles.length}...`);
+        const { error } = await supabase.from('gallery').insert([{ 
+          category: category.trim(), 
+          tags: tags.trim(), 
+          image_url: publicUrl 
+        }]);
+        
+        if (error) throw error;
+        successCount++;
+      }
       
-      setUploadStatus('Menyimpan data foto...');
-      // Simpan data kategori dan tags ke Supabase
-      const { error } = await supabase.from('gallery').insert([{ 
-        category: category.trim(), 
-        tags: tags.trim(), 
-        image_url: publicUrl 
-      }]);
-      
-      if (error) throw error;
-      setCategory(''); setTags(''); setImage(null);
+      setCategory(''); setTags(''); setImageFiles([]);
+      // Reset file input value if needed
+      const fileInput = document.getElementById('gallery-file-input') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+
       fetchImages();
-      alert('Foto berhasil diupload!');
+      alert(`Berhasil mengupload ${successCount} foto ke galeri!`);
     } catch (error: any) {
       alert(error.message);
     } finally {
@@ -555,9 +620,26 @@ export const GalleryManager = () => {
           <div style={S.formGroup}>
             <label style={S.label}>
               <Paperclip size={13} color="#6b7280" />
-              File Foto (Mendukung JPG, PNG, WebP — Otomatis dikompres & dikonversi)
+              File Foto (Bisa pilih **banyak gambar sekaligus**, Mendukung JPG, PNG, WebP — Otomatis dikompres & dikonversi)
             </label>
-            <input style={S.fileInput} type="file" accept="image/*" onChange={e => setImage(e.target.files?.[0] || null)} required />
+            <input 
+              id="gallery-file-input"
+              style={S.fileInput} 
+              type="file" 
+              accept="image/*" 
+              multiple 
+              onChange={e => {
+                if (e.target.files) {
+                  setImageFiles(Array.from(e.target.files));
+                }
+              }} 
+              required 
+            />
+            {imageFiles.length > 0 && (
+              <p style={{ fontSize: '0.75rem', color: '#059669', marginTop: '0.35rem', fontWeight: 500 }}>
+                ✓ {imageFiles.length} foto dipilih
+              </p>
+            )}
           </div>
           <button type="submit" disabled={uploading} style={{ ...S.btnPrimary, opacity: uploading ? 0.6 : 1 }} className="admin-btn">
             {uploading

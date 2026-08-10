@@ -90,9 +90,19 @@ const formattedDate = formatDate(article.date);
 
       <!-- Article Content -->
       <div class="article-content">
-        {article.description?.split('\n').map((para: string) => 
-          para.trim() ? <p>{para}</p> : <br />
-        )}
+        {article.description?.split('\n').map((para: string) => {
+          const trimmed = para.trim();
+          if (!trimmed) return <br />;
+          if (trimmed.startsWith('[img:') && trimmed.endsWith(']')) {
+            const imgUrl = trimmed.slice(5, -1).trim();
+            return (
+              <figure class="article-inline-figure">
+                <img src={imgUrl} alt={article.title} loading="lazy" class="article-inline-img" />
+              </figure>
+            );
+          }
+          return <p>{trimmed}</p>;
+        })}
       </div>
 
       <!-- Share & Back Section -->
@@ -138,6 +148,22 @@ const formattedDate = formatDate(article.date);
 </Layout>
 
 <style>
+  .article-inline-figure {
+    margin: 2rem 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    background: #f1f5f9;
+  }
+
+  .article-inline-img {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: cover;
+    display: block;
+  }
+
   /* ── Hero ─────────────────────────────────────────────────────────────── */
   .article-hero {
     position: relative;
