@@ -59,26 +59,33 @@ const news = newsData || [];
 				<a href="/berita" class="view-all">Lihat Semua &rarr;</a>
 			</div>
 			<div class="news-grid">
-				{news.map(item => (
-					<a href={`/berita/${item.slug || item.id}`} class="news-card">
-						<div class="news-img-container">
-							<img 
-								src={item.image_url} 
-								alt={item.title} 
-								class="news-img-actual-card"
-								loading="lazy"
-								decoding="async"
-								width="400"
-								height="200"
-							/>
-						</div>
-						<div class="news-content">
-							<span class="news-date">{item.date}</span>
-							<h3>{item.title}</h3>
-							<p>{item.description}</p>
-						</div>
-					</a>
-				))}
+				{news.map(item => {
+					// Bersihkan tag [img:...] dari excerpt di beranda jika ada
+					const cleanDesc = item.description 
+						? item.description.split('\n').filter((l: string) => !l.trim().startsWith('[img:')).join(' ')
+						: '';
+					const excerpt = cleanDesc.length > 120 ? cleanDesc.slice(0, 120) + '...' : cleanDesc;
+					return (
+						<a href={`/berita/${item.slug || item.id}`} class="news-card">
+							<div class="news-img-container">
+								<img 
+									src={item.image_url} 
+									alt={item.title} 
+									class="news-img-actual-card"
+									loading="lazy"
+									decoding="async"
+									width="400"
+									height="200"
+								/>
+							</div>
+							<div class="news-content">
+								<span class="news-date">{item.date}</span>
+								<h3>{item.title}</h3>
+								<p>{excerpt}</p>
+							</div>
+						</a>
+					);
+				})}
 			</div>
 		</div>
 	</section>
