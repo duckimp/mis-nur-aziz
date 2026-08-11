@@ -4,7 +4,7 @@ import {
   Image, Upload, LayoutGrid, Inbox,
   Loader2, UserPlus, Plus, Users,
   Calendar, FileText, Tag, Paperclip,
-  AlertCircle, Download,
+  AlertCircle, Download, Edit2, MoveUp, MoveDown, RefreshCw
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 

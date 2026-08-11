@@ -1,19 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-const teachers = [
-  { name: "Muji As'ari, S.HI., M.Pd.I", role: 'Kepala Madrasah', image: '/images/teachers/muji.jpg' },
-  { name: 'Yuyun Novi Ikawati, S.Pd', role: 'Guru Kelas 1', image: '/images/teachers/yuyun.jpg' },
-  { name: "Mar'ah Rohmatul Ummah, S.Pd", role: 'Guru Kelas 2', image: '/images/teachers/marah.jpg' },
-  { name: "Ana Farida, S.Pd.I", role: 'Guru Kelas 3', image: '/images/teachers/ana.jpg' },
-  { name: "Sukartini, S.Pd.I", role: 'Guru Kelas 4', image: '/images/teachers/sukartini.jpg' },
-  { name: 'Holila, S.Pd.I', role: 'Guru Kelas 5', image: '/images/teachers/holila.jpg' },
-  { name: 'Hartini Zubaidah, S.Pd.I', role: 'Guru Kelas 6', image: '/images/teachers/hartini.jpg' },
-  { name: 'Masfin Khoirona, S.Pd.I', role: 'Guru Agama', image: '/images/teachers/masfin.jpg' },
-  { name: 'Siti Saudah, S.Pd', role: 'Guru SKI', image: '/images/teachers/siti.jpg' },
-  { name: 'Nur Hidayat', role: 'Guru PJOK', image: '/images/teachers/dayat.jpg' },
-  { name: 'Andi Mariono', role: 'Operator Data & IT', image: '/images/teachers/andi.jpg' },
-];
+// Fetch teachers data from Supabase database
+const supabase = (await import('../lib/supabase')).supabase;
+
+const { data: teachers, error } = await supabase
+  .from('teachers')
+  .select('*')
+  .order('order_index', { ascending: true });
 ---
 
 <Layout title="Daftar Guru & Staff">
@@ -28,11 +22,11 @@ const teachers = [
 	<section class="teachers section">
 		<div class="container">
 			<div class="teacher-grid">
-				{teachers.map(teacher => (
+				{teachers ? teachers.map(teacher => (
 					<div class="teacher-card animate-up">
 						<div class="teacher-img">
-							{teacher.image !== '#' ? (
-								<img src={teacher.image} alt={teacher.name} class="teacher-photo" loading="lazy" decoding="async" />
+							{teacher.image_url && teacher.image_url !== '#' ? (
+								<img src={teacher.image_url} alt={teacher.name} class="teacher-photo" loading="lazy" decoding="async" />
 							) : (
 								<div class="image-placeholder-portrait">
 									<span class="initials">{teacher.name.charAt(0)}</span>
@@ -44,7 +38,31 @@ const teachers = [
 							<p>{teacher.role}</p>
 						</div>
 					</div>
-				))}
+				)) : (
+					// Fallback static data jika database kosong
+					<>
+						<div class="teacher-card animate-up">
+							<div class="teacher-img">
+								<img src="/images/teachers/muji.jpg" alt="Kepala Madrasah" class="teacher-photo" loading="lazy" decoding="async" />
+							</div>
+							<div class="teacher-info">
+								<h3>Muji As'ari, S.HI., M.Pd.I</h3>
+								<p>Kepala Madrasah</p>
+							</div>
+						</div>
+						<div class="teacher-card animate-up">
+							<div class="teacher-img">
+								<div class="image-placeholder-portrait">
+									<span class="initials">A</span>
+								</div>
+							</div>
+							<div class="teacher-info">
+								<h3>Andi Mariono</h3>
+								<p>Operator Data & IT</p>
+							</div>
+						</div>
+					</>
+				)}
 			</div>
 		</div>
 	</section>

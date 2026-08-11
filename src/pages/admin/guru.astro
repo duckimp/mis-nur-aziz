@@ -1,0 +1,8 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { TeacherManager } from '../../components/admin/TeacherManager';
+---
+
+<AdminLayout title="Manajemen Guru & Staff" activeMenu="Guru & Staff">
+  <TeacherManager client:load />
+</AdminLayout>
