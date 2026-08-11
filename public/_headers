@@ -1,0 +1,52 @@
+# Security Headers untuk Vercel
+# https://vercel.com/docs/projects/project-configuration#headers
+
+/*
+  # ===== SECURITY HEADERS =====
+  # Prevent MIME type sniffing
+  X-Content-Type-Options: nosniff
+  
+  # Prevent clickjacking
+  X-Frame-Options: DENY
+  
+  # Referrer policy
+  Referrer-Policy: strict-origin-when-cross-origin
+  
+  # Permissions Policy (Feature Policy)
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
+  
+  # Hide server/framework info
+  X-Powered-By: MIS Nur Aziz
+  Server: MIS Nur Aziz
+  
+  # ===== CSP (Content Security Policy) =====
+  # Note: CSP via _headers has limitations for dynamic nonces.
+  # For strict CSP with nonces, use middleware (see src/middleware.ts)
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self';
+  
+  # ===== HSTS (already handled by Vercel but explicit) =====
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+# Cache static assets aggressively
+/images/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML pages - no cache for dynamic content
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# API routes
+/api/*
+  Cache-Control: no-store, must-revalidate
+  Access-Control-Allow-Origin: https://mis-nur-aziz.vercel.app
+  Access-Control-Allow-Methods: GET, POST, OPTIONS
+  Access-Control-Allow-Headers: Content-Type, Authorization

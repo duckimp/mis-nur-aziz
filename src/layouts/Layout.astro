@@ -42,7 +42,8 @@ try {
 		<meta name="description" content={description} />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/png" href="/images/logo.png" />
-		<meta name="generator" content={Astro.generator} />
+		<!-- Generator meta removed for security & AI detection reduction -->
+		<meta name="generator" content="MIS Nur Aziz" />
 		<title>{title} | MIS Nur Aziz</title>
 
 		<!-- Resource Hints: preconnect untuk mempercepat koneksi eksternal -->
@@ -55,17 +56,20 @@ try {
 			rel="preload"
 			as="style"
 			href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+			nonce={cspNonce}
 		/>
 		<link
 			href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
 			rel="stylesheet"
 			media="print"
 			onload="this.media='all'"
+			nonce={cspNonce}
 		/>
 		<noscript>
 			<link
 				href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
 				rel="stylesheet"
+				nonce={cspNonce}
 			/>
 		</noscript>
 
@@ -82,6 +86,24 @@ try {
 		<meta name="twitter:title" content={`${title} | MIS Nur Aziz`} />
 		<meta name="twitter:description" content={description} />
 		<meta name="twitter:image" content={resolvedOgImage} />
+
+		<!-- Canonical URL -->
+		<link rel="canonical" href={resolvedOgUrl} />
+
+		<!-- Structured Data (JSON-LD) untuk SEO Sekolah -->
+		<script type="application/ld+json" nonce={cspNonce} set:html={JSON.stringify({
+			"@context": "https://schema.org",
+			"@type": "EducationalOrganization",
+			"name": "MIS Nur Aziz",
+			"description": "Madrasah Ibtidaiyah Swasta Nur Aziz - Sekolah Dasar Islam Berprestasi dan Berakhlak Mulia",
+			"url": siteUrl,
+			"logo": `${siteUrl}/images/logo.png`,
+			"sameAs": [],
+			"address": {
+				"@type": "PostalAddress",
+				"addressCountry": "ID"
+			}
+		})} />
 	</head>
 	<body>
 		{showNavFooter && <Navbar />}
