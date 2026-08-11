@@ -21,8 +21,6 @@ const {
 	ogType = 'website',
 } = Astro.props;
 
-const cspNonce = Astro.locals.cspNonce;
-
 const siteUrl = 'https://mis-nur-aziz.vercel.app';
 const resolvedOgImage = ogImage || `${siteUrl}/images/logo.png`;
 const resolvedOgUrl = ogUrl || siteUrl;
@@ -58,20 +56,17 @@ try {
 			rel="preload"
 			as="style"
 			href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
-			nonce={cspNonce}
 		/>
 		<link
 			href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
 			rel="stylesheet"
 			media="print"
 			onload="this.media='all'"
-			nonce={cspNonce}
 		/>
 		<noscript>
 			<link
 				href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
 				rel="stylesheet"
-				nonce={cspNonce}
 			/>
 		</noscript>
 
@@ -93,7 +88,7 @@ try {
 		<link rel="canonical" href={resolvedOgUrl} />
 
 		<!-- Structured Data (JSON-LD) untuk SEO Sekolah -->
-		<script type="application/ld+json" nonce={cspNonce} set:html={JSON.stringify({
+		<script type="application/ld+json" set:html={JSON.stringify({
 			"@context": "https://schema.org",
 			"@type": "EducationalOrganization",
 			"name": "MIS Nur Aziz",
