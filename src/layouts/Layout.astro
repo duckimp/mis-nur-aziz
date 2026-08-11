@@ -21,6 +21,8 @@ const {
 	ogType = 'website',
 } = Astro.props;
 
+const cspNonce = Astro.locals.cspNonce;
+
 const siteUrl = 'https://mis-nur-aziz.vercel.app';
 const resolvedOgImage = ogImage || `${siteUrl}/images/logo.png`;
 const resolvedOgUrl = ogUrl || siteUrl;
