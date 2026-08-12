@@ -35,9 +35,11 @@ const currentYear = new Date().getFullYear();
 
     <div class="footer-contact">
       <h3>Kontak Kami</h3>
-      <p><a href="https://maps.app.goo.gl/jognLgkxg6pRWSfY7" target="_blank">Jl. Panglima Sudirman Gg. VI A Kel. Kebonsari Kulon, Kec. Kanigaran, Kota Probolinggo</a></p>
-      <p><a href="mailto:mi.nuraziz2020@gmail.com" target="_blank">Email: mi.nuraziz2020@gmail.com</a></p>
-      <p><a href="https://wa.me/6285233783768" target="_blank">WhatsApp: +62 852 3378 3768</a></p>
+      <ul>
+        <li><a href="https://maps.app.goo.gl/jognLgkxg6pRWSfY7" target="_blank"> Jl. Panglima Sudirman Gg. VI A Kel. Kebonsari Kulon, Kec. Kanigaran, Kota Probolinggo</a></li>
+        <li><a href="mailto:mi.nuraziz2020@gmail.com" target="_blank"> Email: mi.nuraziz2020@gmail.com</a></li>
+        <li><a href="https://wa.me/6285233783768" target="_blank">WhatsApp: +62 852 3378 3768</a></li>
+      </ul>
     </div>
   </div>
 
@@ -104,9 +106,13 @@ const currentYear = new Date().getFullYear();
     padding-left: 5px;
   }
 
-  .footer-contact p {
+  .footer-contact ul li a {
     color: #94a3b8;
     margin-bottom: 0.75rem;
+  }
+
+  .footer-contact ul li a:hover {
+    color: var(--primary);
   }
 
   .footer-bottom {
