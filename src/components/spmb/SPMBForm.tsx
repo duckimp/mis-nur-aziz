@@ -75,19 +75,46 @@ export default function SPMBForm({ settings }: Props) {
 
   const handleEnableNotification = async () => {
     if (typeof window === 'undefined') return;
+
+    const win = window as any;
+
+    // Cek apakah permission sudah diberikan sebelumnya
+    if (win.Notification && win.Notification.permission === 'granted') {
+      setNotifEnabled(true);
+      return;
+    }
+
+    // Cek apakah permission sudah ditolak (tidak bisa minta lagi)
+    if (win.Notification && win.Notification.permission === 'denied') {
+      alert('Notifikasi diblokir oleh browser. Silakan aktifkan manual di pengaturan browser Anda (ikon kunci/gembok di address bar).');
+      return;
+    }
+
     try {
-      if ((window as any).OneSignalDeferred) {
-        (window as any).OneSignalDeferred.push(async function (OneSignal: any) {
+      // Akses window.OneSignal langsung jika sudah init (cara yang benar di v16)
+      if (win.OneSignal && win.OneSignal.Notifications) {
+        const perm = await win.OneSignal.Notifications.requestPermission();
+        if (perm) {
+          // Tag user dengan ID registrasi agar bisa kirim notifikasi personal
+          if (registrationId && win.OneSignal.User && win.OneSignal.User.addTag) {
+            await win.OneSignal.User.addTag('spmb_id', registrationId);
+          }
+          setNotifEnabled(true);
+        }
+      } else {
+        // Fallback: OneSignal belum selesai init, tunggu via Deferred
+        win.OneSignalDeferred = win.OneSignalDeferred || [];
+        win.OneSignalDeferred.push(async (OneSignal: any) => {
           try {
-            if (OneSignal.Notifications && OneSignal.Notifications.requestPermission) {
-              await OneSignal.Notifications.requestPermission();
+            const perm = await OneSignal.Notifications.requestPermission();
+            if (perm) {
+              if (registrationId && OneSignal.User?.addTag) {
+                await OneSignal.User.addTag('spmb_id', registrationId);
+              }
+              setNotifEnabled(true);
             }
-            if (registrationId && OneSignal.User && OneSignal.User.addTag) {
-              OneSignal.User.addTag('spmb_id', registrationId);
-            }
-            setNotifEnabled(true);
           } catch (e) {
-            console.info('OneSignal trigger permission:', e);
+            console.info('OneSignal permission via deferred:', e);
           }
         });
       }

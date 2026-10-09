@@ -138,7 +138,11 @@ try {
 									appId: "9a1b504d-2ba5-4f80-b49f-2592262f76e0",
 									allowLocalhostAsSecureOrigin: true,
 									notifyButton: { enable: false },
+									serviceWorkerPath: '/OneSignalSDKWorker.js',
+									serviceWorkerUpdaterPath: '/OneSignalSDKWorker.js',
 								});
+								// Simpan referensi ke window.OneSignal agar bisa diakses langsung dari komponen
+								window.OneSignal = OneSignal;
 							} catch (e) {
 								console.info('OneSignal Safe Init:', e);
 							}
