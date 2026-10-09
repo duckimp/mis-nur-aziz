@@ -1,0 +1,41 @@
+{
+  "name": "MIS Nur Aziz",
+  "short_name": "MIS Nur Aziz",
+  "description": "Website Resmi MIS Nur Aziz - Mewujudkan Generasi Qur'ani dan Berprestasi",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#059669",
+  "lang": "id",
+  "categories": ["education"],
+  "icons": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Daftar SPMB",
+      "short_name": "SPMB",
+      "url": "/spmb",
+      "icons": [{ "src": "/images/logo.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Cek Status Pendaftaran",
+      "short_name": "Cek Status",
+      "url": "/spmb/cek-status",
+      "icons": [{ "src": "/images/logo.png", "sizes": "96x96" }]
+    }
+  ]
+}
