@@ -1,0 +1,214 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SPMBForm from '../../components/spmb/SPMBForm';
+import { createServerClient, parseCookieHeader } from '@supabase/ssr';
+
+const supabase = createServerClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+  {
+    cookies: {
+      getAll() {
+        const h = Astro.request.headers.get('cookie');
+        if (!h) return [];
+        return parseCookieHeader(h);
+      },
+      setAll(list) {
+        list.forEach(({ name, value, options }) => Astro.cookies.set(name, value, options));
+      },
+    },
+  }
+);
+
+const { data: settings } = await supabase.from('spmb_settings').select('*').eq('id', 1).single();
+const spmbSettings = settings || { is_open: false, tahun_ajaran: '2026/2027', kuota: null };
+---
+
+<Layout
+  title="Formulir Pendaftaran SPMB"
+  description={`Daftar sekarang di SPMB MIS Nur Aziz Tahun Ajaran ${spmbSettings.tahun_ajaran}. Formulir pendaftaran online mudah dan cepat.`}
+  ogUrl="https://mis-nur-aziz.vercel.app/spmb"
+>
+  <section class="spmb-hero">
+    <div class="container">
+      <div class="spmb-hero-inner animate-up">
+        <div class="spmb-breadcrumb">
+          <a href="/">Beranda</a>
+          <span>›</span>
+          <a href="/ppdb">SPMB / PPDB</a>
+          <span>›</span>
+          <span>Formulir Pendaftaran</span>
+        </div>
+        <span class="badge badge-with-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Formulir Online
+        </span>
+        <h1>Pendaftaran SPMB<br /><span class="text-primary">MIS Nur Aziz</span></h1>
+        <p>Isi formulir di bawah ini dengan data yang lengkap dan benar. Pastikan foto KK dan Akta Kelahiran jelas terbaca.</p>
+
+        <div class="spmb-status-bar">
+          <div class={`status-indicator ${spmbSettings.is_open ? 'open' : 'closed'}`}>
+            <span class="status-dot"></span>
+            {spmbSettings.is_open ? `Pendaftaran DIBUKA — TA ${spmbSettings.tahun_ajaran}` : 'Pendaftaran DITUTUP'}
+          </div>
+          <a href="/spmb/cek-status" class="cek-status-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span>Cek Status Pendaftaran</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="spmb-form-section section">
+    <div class="container">
+      <div class="spmb-form-wrapper animate-up">
+        <SPMBForm settings={spmbSettings} client:load />
+      </div>
+
+      <div class="spmb-tips animate-up">
+        <div class="tips-header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <h3>Tips & Petunjuk Pengisian</h3>
+        </div>
+        <ul>
+          <li>
+            <svg class="tip-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Pastikan foto KK dan Akta Kelahiran tidak buram dan terbaca jelas</span>
+          </li>
+          <li>
+            <svg class="tip-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            <span>Gunakan nomor WhatsApp yang aktif — hasil seleksi pendaftaran akan dikirim via WA</span>
+          </li>
+          <li>
+            <svg class="tip-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            <span>Simpan ID Registrasi yang muncul setelah submit — diperlukan untuk cek status</span>
+          </li>
+          <li>
+            <svg class="tip-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Proses upload foto melakukan optimasi dan kompresi WebP otomatis secara aman di perangkat</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .spmb-hero {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #f0fdf4 100%);
+    padding-top: 140px;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid #d1fae5;
+  }
+
+  .spmb-hero-inner { max-width: 700px; }
+
+  .spmb-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+  .spmb-breadcrumb a:hover { color: var(--primary); }
+  .spmb-breadcrumb span { color: #94a3b8; }
+
+  .badge-with-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #d1fae5;
+    color: #065f46;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--text-main); margin: 0.75rem 0; }
+  .text-primary { color: var(--primary); }
+  h1 + p { color: var(--text-muted); max-width: 600px; }
+
+  .spmb-status-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .status-indicator.open { background: #d1fae5; color: #059669; }
+  .status-indicator.closed { background: #fee2e2; color: #dc2626; }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .cek-status-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.875rem;
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .cek-status-link:hover { color: var(--primary-hover); }
+
+  .spmb-form-section { padding: 3rem 0; }
+
+  .spmb-form-wrapper {
+    max-width: 780px;
+    margin: 0 auto 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+  }
+
+  .spmb-tips {
+    max-width: 780px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 1px solid #a7f3d0;
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+  }
+  .tips-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary);
+    margin-bottom: 0.75rem;
+  }
+  .tips-header h3 { font-size: 1rem; margin: 0; }
+  .spmb-tips ul { list-style: none; display: flex; flex-direction: column; gap: 0.65rem; padding: 0; margin: 0; }
+  .spmb-tips li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-size: 0.875rem;
+    color: #064e3b;
+  }
+  .tip-icon { flex-shrink: 0; margin-top: 2px; color: var(--primary); }
+</style>

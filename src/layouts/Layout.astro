@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
+import PWAInstallBanner from '../components/PWAInstallBanner.astro';
 
 interface Props {
 	title: string;
@@ -101,6 +102,43 @@ try {
 				"addressCountry": "ID"
 			}
 		})} />
+
+		<!-- OneSignal Smart Safe Loader (Zero Crash on iOS / Non-Push Browsers) -->
+		<script is:inline>
+			(function() {
+				if (typeof window === 'undefined') return;
+
+				var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+				            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+				var isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+				                   (window.navigator && window.navigator.standalone === true);
+				var isPushSupported = 'Notification' in window && 
+				                      'serviceWorker' in navigator && 
+				                      'PushManager' in window;
+
+				// HANYA load SDK jika Push didukung dan BUKAN iOS Safari browser biasa
+				if (isPushSupported && (!isIOS || isStandalone)) {
+					var script = document.createElement('script');
+					script.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
+					script.defer = true;
+					script.onload = function() {
+						window.OneSignalDeferred = window.OneSignalDeferred || [];
+						window.OneSignalDeferred.push(async function(OneSignal) {
+							try {
+								await OneSignal.init({
+									appId: "9a1b504d-2ba5-4f80-b49f-2592262f76e0",
+									allowLocalhostAsSecureOrigin: true,
+									notifyButton: { enable: false },
+								});
+							} catch (e) {
+								console.info('OneSignal Safe Init:', e);
+							}
+						});
+					};
+					document.head.appendChild(script);
+				}
+			})();
+		</script>
 	</head>
 	<body>
 		{showNavFooter && <Navbar />}
@@ -108,6 +146,7 @@ try {
 			<slot />
 		</main>
 		{showNavFooter && <Footer />}
+		{showNavFooter && <PWAInstallBanner />}
 
 		<!-- ═══ Login Modal (tersedia di semua halaman publik) ═══ -->
 		{showNavFooter && (

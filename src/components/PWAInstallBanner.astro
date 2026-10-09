@@ -1,0 +1,291 @@
+---
+// PWAInstallBanner.astro - Smart PWA & Add-to-Home-Screen prompt
+---
+
+<div id="pwa-install-banner" class="pwa-banner-wrap" hidden>
+  <div class="pwa-banner-card">
+    <button id="pwa-close-btn" class="pwa-close" aria-label="Tutup Banner">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+
+    <div class="pwa-content">
+      <div class="pwa-icon-box">
+        <img src="/images/logo.png" alt="MIS Nur Aziz Logo" class="pwa-app-logo" />
+      </div>
+
+      <div class="pwa-text-area">
+        <div class="pwa-badge">APLIKASI RESMI</div>
+        <h4 class="pwa-title">Pasang Aplikasi MIS Nur Aziz</h4>
+        
+        <!-- Pesan Khusus Android / Desktop -->
+        <p id="pwa-desc-generic" class="pwa-desc">
+          Akses info sekolah & notifikasi pengumuman SPMB lebih cepat langsung dari layar HP Anda.
+        </p>
+
+        <!-- Pesan Khusus iPhone / iOS Safari -->
+        <div id="pwa-desc-ios" class="pwa-ios-guide" style="display: none;">
+          <p class="pwa-desc">
+            Untuk menerima notifikasi & akses instan di iPhone:
+          </p>
+          <div class="ios-steps">
+            <span class="ios-step-badge">1</span> Tap ikon <strong>Bagikan / Share</strong> 
+            <svg class="ios-share-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+              <polyline points="16 6 12 2 8 6"></polyline>
+              <line x1="12" y1="2" x2="12" y2="15"></line>
+            </svg> 
+            di bagian bawah Safari.
+          </div>
+          <div class="ios-steps">
+            <span class="ios-step-badge">2</span> Gulir ke bawah lalu pilih <strong>'Tambah ke Layar Utama'</strong> (Add to Home Screen).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tombol Aksi (Hanya untuk Android/Chrome) -->
+    <div id="pwa-btn-container" class="pwa-action-row">
+      <button id="pwa-install-action" class="btn-pwa-install">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+          <line x1="12" y1="18" x2="12.01" y2="18"></line>
+        </svg>
+        <span>Pasang Sekarang</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .pwa-banner-wrap {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    max-width: 440px;
+    margin: 0 auto;
+    z-index: 9990;
+    animation: pwaSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes pwaSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .pwa-banner-card {
+    position: relative;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(5, 150, 105, 0.15);
+    border: 1px solid #d1fae5;
+  }
+
+  .pwa-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    background: #f1f5f9;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .pwa-close:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+
+  .pwa-content {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .pwa-icon-box {
+    width: 44px;
+    height: 44px;
+    background: #ecfdf5;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid #a7f3d0;
+  }
+
+  .pwa-app-logo {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
+
+  .pwa-text-area {
+    flex: 1;
+    padding-right: 18px;
+  }
+
+  .pwa-badge {
+    display: inline-block;
+    background: #059669;
+    color: #ffffff;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    padding: 2px 7px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+  }
+
+  .pwa-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 4px 0;
+  }
+
+  .pwa-desc {
+    font-size: 12px;
+    color: #475569;
+    line-height: 1.45;
+    margin: 0;
+  }
+
+  .pwa-ios-guide {
+    margin-top: 6px;
+  }
+
+  .ios-steps {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: #1e293b;
+    margin-top: 5px;
+    line-height: 1.35;
+    background: #f8fafc;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .ios-step-badge {
+    width: 18px;
+    height: 18px;
+    background: #059669;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .ios-share-icon {
+    display: inline-block;
+    vertical-align: middle;
+    color: #0284c7;
+  }
+
+  .pwa-action-row {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .btn-pwa-install {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #059669, #047857);
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(5, 150, 105, 0.25);
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+
+  .btn-pwa-install:hover {
+    transform: translateY(-1px);
+    opacity: 0.95;
+  }
+</style>
+
+<script>
+  let deferredPrompt: any = null;
+
+  const banner = document.getElementById('pwa-install-banner');
+  const closeBtn = document.getElementById('pwa-close-btn');
+  const installBtn = document.getElementById('pwa-install-action');
+  const btnContainer = document.getElementById('pwa-btn-container');
+  const descGeneric = document.getElementById('pwa-desc-generic');
+  const descIos = document.getElementById('pwa-desc-ios');
+
+  // Deteksi lingkungan
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                       (window.navigator as any).standalone === true;
+
+  const isDismissed = sessionStorage.getItem('pwa_banner_dismissed') === 'true';
+
+  if (!isStandalone && !isDismissed) {
+    if (isIOS) {
+      // Tampilkan panduan khusus iPhone / iOS Safari
+      if (banner && descGeneric && descIos && btnContainer) {
+        descGeneric.style.display = 'none';
+        descIos.style.display = 'block';
+        btnContainer.style.display = 'none'; // iOS tidak mendukung programmatical install button
+        banner.hidden = false;
+      }
+    } else {
+      // Android / Chrome / Edge Desktop
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (banner) {
+          banner.hidden = false;
+        }
+      });
+    }
+  }
+
+  // Handle Close Button
+  closeBtn?.addEventListener('click', () => {
+    if (banner) banner.hidden = true;
+    sessionStorage.setItem('pwa_banner_dismissed', 'true');
+  });
+
+  // Handle Install Action Button (Android/Desktop)
+  installBtn?.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    if (banner) banner.hidden = true;
+  });
+</script>

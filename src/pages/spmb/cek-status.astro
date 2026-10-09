@@ -1,0 +1,89 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import StatusChecker from '../../components/spmb/StatusChecker';
+---
+
+<Layout
+  title="Cek Status Pendaftaran SPMB"
+  description="Cek status pendaftaran SPMB MIS Nur Aziz dengan ID Registrasi Anda. Lihat kartu bukti digital dan unduh sebagai PNG."
+  ogUrl="https://mis-nur-aziz.vercel.app/spmb/cek-status"
+>
+  <section class="spmb-hero">
+    <div class="container">
+      <div class="spmb-hero-inner animate-up">
+        <div class="spmb-breadcrumb">
+          <a href="/">Beranda</a>
+          <span>›</span>
+          <a href="/ppdb">SPMB / PPDB</a>
+          <span>›</span>
+          <span>Cek Status</span>
+        </div>
+        <span class="badge badge-with-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Status Pendaftaran
+        </span>
+        <h1>Cek Status <span class="text-primary">SPMB</span></h1>
+        <p>Masukkan ID Registrasi yang Anda dapatkan saat mendaftar untuk melihat status terkini dan mengunduh Kartu Bukti Digital.</p>
+        <a href="/spmb" class="daftar-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>Belum Mendaftar? Formulir Pendaftaran</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="cek-status-section section">
+    <div class="container">
+      <div class="checker-wrapper animate-up">
+        <StatusChecker client:load />
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .spmb-hero {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #f0fdf4 100%);
+    padding-top: 140px;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid #d1fae5;
+  }
+  .spmb-hero-inner { max-width: 700px; }
+  .spmb-breadcrumb {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;
+  }
+  .spmb-breadcrumb a:hover { color: var(--primary); }
+  .spmb-breadcrumb span { color: #94a3b8; }
+  .badge-with-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #d1fae5;
+    color: #065f46;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+  h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--text-main); margin: 0.75rem 0; }
+  .text-primary { color: var(--primary); }
+  h1 + p { color: var(--text-muted); }
+  .daftar-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .daftar-link:hover { color: var(--primary-hover); }
+  .cek-status-section { padding: 3rem 0; }
+  .checker-wrapper {
+    max-width: 780px;
+    margin: 0 auto;
+  }
+</style>
