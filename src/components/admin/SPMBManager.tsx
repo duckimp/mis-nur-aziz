@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { generateWALink, generateWAMessage, getAlasanBatalLabel } from '../../lib/spmb';
+import { generateWALink, generateWAMessage, getAlasanBatalLabel, formatWhatsApp } from '../../lib/spmb';
 import {
   IconRefresh,
   IconCalendar,
