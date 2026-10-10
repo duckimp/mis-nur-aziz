@@ -81,6 +81,18 @@ export default function StatusChecker() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Nomor Registrasi tidak ditemukan.');
       setPendaftar(data);
+      // Sinkronkan tag spmb_id ke OneSignal untuk menerima notifikasi personal
+      if (data?.registration_id && typeof window !== "undefined") {
+        const win = window as any;
+        if (win.OneSignal?.User?.addTag) {
+          win.OneSignal.User.addTag("spmb_id", data.registration_id);
+        } else {
+          win.OneSignalDeferred = win.OneSignalDeferred || [];
+          win.OneSignalDeferred.push((OneSignal: any) => {
+            OneSignal.User?.addTag?.("spmb_id", data.registration_id);
+          });
+        }
+      }
     } catch (err: any) {
       setError(err.message || 'Terjadi kesalahan saat memuat data.');
     } finally {
