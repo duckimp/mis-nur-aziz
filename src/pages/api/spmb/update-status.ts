@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createServerClient, parseCookieHeader } from '@supabase/ssr';
+import { sendPushNotification } from '../../../lib/onesignal-server';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   const supabase = createServerClient(
@@ -44,5 +45,26 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     .single();
 
   if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+
+  // Kirim Push Notification otomatis jika status DITERIMA / DITOLAK
+  if (data && (status === 'DITERIMA' || status === 'DITOLAK')) {
+    const isLulus = status === 'DITERIMA';
+    const heading = isLulus
+      ? '🎉 SELAMAT! Pendaftaran Diterima'
+      : '📢 Info Seleksi SPMB MIS Nur Aziz';
+    const message = isLulus
+      ? `Selamat! Calon siswa ${data.nama_lengkap} (${data.registration_id}) dinyatakan DITERIMA di MIS Nur Aziz.`
+      : `Pemberitahuan status seleksi pendaftaran an. ${data.nama_lengkap} (${data.registration_id}) telah diperbarui.`;
+
+    // Kirim notifikasi tertarget berdasarkan tag registration_id
+    await sendPushNotification({
+      headings: heading,
+      contents: message,
+      url: `https://mis-nur-aziz.vercel.app/spmb/cek-status?id=${data.registration_id}`,
+      tagKey: 'spmb_id',
+      tagValue: data.registration_id,
+    });
+  }
+
   return new Response(JSON.stringify({ success: true, data }), { status: 200 });
 };

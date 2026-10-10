@@ -112,6 +112,22 @@ try {
 			}
 		})} />
 
+		<!-- PWA Prompt Early Capture & Service Worker Register -->
+		<script is:inline>
+			window.deferredPWAEvent = null;
+			window.addEventListener("beforeinstallprompt", function(e) {
+				e.preventDefault();
+				window.deferredPWAEvent = e;
+				window.dispatchEvent(new CustomEvent("pwa-ready"));
+			});
+			if ("serviceWorker" in navigator) {
+				window.addEventListener("load", function() {
+					navigator.serviceWorker.register("/OneSignalSDKWorker.js", { scope: "/" })
+						.catch(function(err) { console.info("SW registration:", err); });
+				});
+			}
+		</script>
+
 		<!-- OneSignal Smart Safe Loader (Zero Crash on iOS / Non-Push Browsers) -->
 		<script is:inline>
 			(function() {

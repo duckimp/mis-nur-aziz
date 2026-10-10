@@ -1,5 +1,5 @@
 ---
-// PWAInstallBanner.astro - Smart PWA & Add-to-Home-Screen prompt
+// PWA Install Banner Component
 ---
 
 <div id="pwa-install-banner" class="pwa-banner-wrap" hidden>
@@ -236,8 +236,6 @@
 </style>
 
 <script>
-  let deferredPrompt: any = null;
-
   const banner = document.getElementById('pwa-install-banner');
   const closeBtn = document.getElementById('pwa-close-btn');
   const installBtn = document.getElementById('pwa-install-action');
@@ -245,7 +243,6 @@
   const descGeneric = document.getElementById('pwa-desc-generic');
   const descIos = document.getElementById('pwa-desc-ios');
 
-  // Deteksi lingkungan
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
@@ -253,23 +250,32 @@
 
   const isDismissed = sessionStorage.getItem('pwa_banner_dismissed') === 'true';
 
+  function showBanner() {
+    if (!banner || isStandalone || isDismissed) return;
+    banner.hidden = false;
+  }
+
   if (!isStandalone && !isDismissed) {
     if (isIOS) {
       // Tampilkan panduan khusus iPhone / iOS Safari
       if (banner && descGeneric && descIos && btnContainer) {
         descGeneric.style.display = 'none';
         descIos.style.display = 'block';
-        btnContainer.style.display = 'none'; // iOS tidak mendukung programmatical install button
+        btnContainer.style.display = 'none';
         banner.hidden = false;
       }
     } else {
-      // Android / Chrome / Edge Desktop
+      // Android / Chrome: Cek jika prompt sudah tertangkap sebelumnya oleh inline script
+      if ((window as any).deferredPWAEvent) {
+        showBanner();
+      }
+      window.addEventListener('pwa-ready', () => {
+        showBanner();
+      });
       window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
-        deferredPrompt = e;
-        if (banner) {
-          banner.hidden = false;
-        }
+        (window as any).deferredPWAEvent = e;
+        showBanner();
       });
     }
   }
@@ -282,10 +288,16 @@
 
   // Handle Install Action Button (Android/Desktop)
   installBtn?.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    if (banner) banner.hidden = true;
+    const promptEvent = (window as any).deferredPWAEvent;
+    if (promptEvent && typeof promptEvent.prompt === 'function') {
+      promptEvent.prompt();
+      try {
+        await promptEvent.userChoice;
+      } catch (err) {}
+      (window as any).deferredPWAEvent = null;
+      if (banner) banner.hidden = true;
+    } else {
+      alert('Untuk memasang aplikasi: Ketuk menu titik tiga (⋮) di pojok kanan atas Chrome, lalu pilih "Tambahkan ke Layar Utama" / "Instal aplikasi".');
+    }
   });
 </script>

@@ -5,6 +5,7 @@ import {
   IconCheckCircle,
   IconAlertTriangle,
   IconSpinner,
+  IconBell,
 } from './SPMBIcons';
 
 interface Settings {
@@ -20,6 +21,7 @@ interface Props {
 export default function SPMBPengaturan({ initialSettings }: Props) {
   const [settings, setSettings] = useState<Settings>(initialSettings);
   const [saving, setSaving] = useState(false);
+  const [testingPush, setTestingPush] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const handleToggle = async () => {
@@ -50,6 +52,24 @@ export default function SPMBPengaturan({ initialSettings }: Props) {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     await saveSettings(settings);
+  };
+
+  const handleTestPush = async () => {
+    setTestingPush(true);
+    setMessage(null);
+    try {
+      const res = await fetch('/api/admin/test-push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const result = await res.json();
+      if (!res.ok || result.error) throw new Error(result.error || 'Gagal mengirim test notifikasi');
+      setMessage({ type: 'success', text: '🔔 Test push notifikasi berhasil dikirim ke semua perangkat yang berlangganan!' });
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err.message || 'Gagal mengirim test notifikasi.' });
+    } finally {
+      setTestingPush(false);
+    }
   };
 
   return (
@@ -145,6 +165,44 @@ export default function SPMBPengaturan({ initialSettings }: Props) {
             )}
           </button>
         </form>
+      </div>
+
+      {/* Uji Push Notifikasi */}
+      <div className="settings-card">
+        <h3>Uji Coba Push Notifikasi</h3>
+        <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1rem', lineHeight: '1.5' }}>
+          Gunakan tombol di bawah untuk menguji apakah push notifikasi berhasil dikirim ke perangkat Android yang sudah mengaktifkan izin notifikasi atau memasang PWA.
+        </p>
+        <button
+          type="button"
+          onClick={handleTestPush}
+          disabled={testingPush}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: '#0284c7',
+            color: '#fff',
+            border: 'none',
+            padding: '10px 18px',
+            borderRadius: '10px',
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            cursor: 'pointer',
+          }}
+        >
+          {testingPush ? (
+            <>
+              <IconSpinner size={16} />
+              <span>Mengirim Notifikasi...</span>
+            </>
+          ) : (
+            <>
+              <IconBell size={16} />
+              <span>Kirim Test Notifikasi Sekarang</span>
+            </>
+          )}
+        </button>
       </div>
     </div>
   );
