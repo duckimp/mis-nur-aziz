@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import KartuBukti from './KartuBukti';
 import BatalModal from './BatalModal';
 import {
@@ -57,17 +57,63 @@ const statusConfig = {
 };
 
 export default function StatusChecker() {
-  const [inputId, setInputId] = useState('');
+  const currentYear = new Date().getFullYear();
+  const [yearPart, setYearPart] = useState(String(currentYear));
+  const [seqPart, setSeqPart] = useState('');
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [pendaftar, setPendaftar] = useState<Pendaftar | null>(null);
   const [showBatalModal, setShowBatalModal] = useState(false);
   const [batalSuccess, setBatalSuccess] = useState(false);
 
-  const fetchStatus = useCallback(async (idToFetch: string) => {
-    const id = idToFetch.trim().toUpperCase();
-    if (!id) {
-      setError('Masukkan Nomor Registrasi terlebih dahulu.');
+  const yearInputRef = useRef<HTMLInputElement>(null);
+  const seqInputRef = useRef<HTMLInputElement>(null);
+
+  // Helper untuk parsing ID utuh (contoh: SPMB-2027-001 atau 2027-001 atau 001)
+  const parseAndSetId = useCallback((raw: string) => {
+    const clean = raw.trim().toUpperCase().replace(/[^A-Z0-9-]/g, '');
+    const parts = clean.split('-');
+
+    if (parts.length >= 3) {
+      // SPMB-2027-001
+      setYearPart(parts[1] || String(currentYear));
+      setSeqPart(parts[2] || '');
+      return `SPMB-${parts[1]}-${parts[2]}`;
+    } else if (parts.length === 2) {
+      // 2027-001
+      setYearPart(parts[0] || String(currentYear));
+      setSeqPart(parts[1] || '');
+      return `SPMB-${parts[0]}-${parts[1]}`;
+    } else if (clean.startsWith('SPMB') && clean.length > 4) {
+      // SPMB2027001
+      const numOnly = clean.replace('SPMB', '');
+      const yr = numOnly.slice(0, 4) || String(currentYear);
+      const sq = numOnly.slice(4) || '';
+      setYearPart(yr);
+      setSeqPart(sq);
+      return `SPMB-${yr}-${sq}`;
+    } else if (/^\d{5,}$/.test(clean)) {
+      // 2027001
+      const yr = clean.slice(0, 4);
+      const sq = clean.slice(4);
+      setYearPart(yr);
+      setSeqPart(sq);
+      return `SPMB-${yr}-${sq}`;
+    } else if (/^\d{1,4}$/.test(clean)) {
+      // Hanya nomor urut misal: 1 atau 001
+      const padSeq = clean.padStart(3, '0');
+      setSeqPart(padSeq);
+      return `SPMB-${yearPart || currentYear}-${padSeq}`;
+    }
+
+    return null;
+  }, [currentYear, yearPart]);
+
+  const fetchStatus = useCallback(async (fullId: string) => {
+    const id = fullId.trim().toUpperCase();
+    if (!id || id === 'SPMB--' || id.endsWith('-')) {
+      setError('Masukkan nomor urut pendaftaran.');
       return;
     }
 
@@ -81,17 +127,18 @@ export default function StatusChecker() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Nomor Registrasi tidak ditemukan.');
       setPendaftar(data);
+
       // Sinkronkan login external_id & tag spmb_id ke OneSignal
-      if (data?.registration_id && typeof window !== "undefined") {
+      if (data?.registration_id && typeof window !== 'undefined') {
         const win = window as any;
         const regId = data.registration_id;
         const bindDevice = async (os: any) => {
           try {
             if (os.login) await os.login(regId);
-            if (os.User?.addTag) await os.User.addTag("spmb_id", regId);
-            console.log("[OneSignal] Sinkronisasi akun & tag sukses:", regId);
+            if (os.User?.addTag) await os.User.addTag('spmb_id', regId);
+            console.log('[OneSignal] Sinkronisasi akun & tag sukses:', regId);
           } catch (e) {
-            console.info("[OneSignal] Sinkronisasi error:", e);
+            console.info('[OneSignal] Sinkronisasi error:', e);
           }
         };
 
@@ -115,20 +162,63 @@ export default function StatusChecker() {
       const params = new URLSearchParams(window.location.search);
       const urlId = params.get('id');
       if (urlId) {
-        setInputId(urlId.toUpperCase());
-        fetchStatus(urlId.toUpperCase());
+        const parsed = parseAndSetId(urlId);
+        if (parsed) {
+          fetchStatus(parsed);
+        } else {
+          fetchStatus(urlId);
+        }
       }
     }
-  }, [fetchStatus]);
+  }, [fetchStatus, parseAndSetId]);
+
+  const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+    setYearPart(val);
+    if (val.length === 4) {
+      seqInputRef.current?.focus();
+    }
+  };
+
+  const handleSeqChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 5);
+    setSeqPart(val);
+  };
+
+  const handleSeqKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !seqPart) {
+      yearInputRef.current?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const pasted = e.clipboardData.getData('text');
+    if (pasted) {
+      e.preventDefault();
+      const parsed = parseAndSetId(pasted);
+      if (parsed) {
+        const newUrl = `${window.location.pathname}?id=${encodeURIComponent(parsed)}`;
+        window.history.replaceState(null, '', newUrl);
+        fetchStatus(parsed);
+      }
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputId.trim()) {
-      // Update browser URL query param without full page reload
-      const newUrl = `${window.location.pathname}?id=${encodeURIComponent(inputId.trim().toUpperCase())}`;
-      window.history.replaceState(null, '', newUrl);
-      fetchStatus(inputId);
+    if (!seqPart.trim()) {
+      setError('Silakan masukkan nomor urut pendaftaran Anda.');
+      seqInputRef.current?.focus();
+      return;
     }
+
+    // Format nomor urut (pad minimal 3 digit misal "1" -> "001")
+    const formattedSeq = seqPart.length < 3 ? seqPart.padStart(3, '0') : seqPart;
+    const fullId = `SPMB-${yearPart || currentYear}-${formattedSeq}`;
+
+    const newUrl = `${window.location.pathname}?id=${encodeURIComponent(fullId)}`;
+    window.history.replaceState(null, '', newUrl);
+    fetchStatus(fullId);
   };
 
   const handleBatalSuccess = () => {
@@ -143,29 +233,74 @@ export default function StatusChecker() {
 
   return (
     <div className="status-checker">
-      {/* Search Form */}
+      {/* Search Form PIN/Segmented Style */}
       <form onSubmit={handleSubmit} className="search-form-spmb">
-        <div className="search-wrapper">
-          <input
-            type="text"
-            value={inputId}
-            onChange={(e) => setInputId(e.target.value.toUpperCase())}
-            placeholder="Contoh: SPMB-2027-001"
-            className="search-input-spmb"
-            maxLength={25}
-            aria-label="Nomor Registrasi SPMB"
-          />
-          <button type="submit" disabled={loading} className="search-btn-spmb">
-            {loading ? (
-              <IconSpinner size={16} />
-            ) : (
-              <>
-                <IconSearch size={16} />
-                <span>Cek Status</span>
-              </>
-            )}
-          </button>
+        <div className="pin-search-container">
+          <label className="pin-search-label">
+            <span>Nomor Registrasi SPMB</span>
+            <span className="pin-helper-text">Cukup ketik angka tahun & nomor urut</span>
+          </label>
+
+          <div className="pin-input-group" onPaste={handlePaste}>
+            {/* Read-Only SPMB Badge Prefix */}
+            <div className="pin-prefix-badge" title="Format Awalan Resmi">
+              <span className="pin-badge-text">SPMB</span>
+            </div>
+
+            <span className="pin-separator">-</span>
+
+            {/* Year Input (4 Digits) */}
+            <div className="pin-field-wrap">
+              <input
+                ref={yearInputRef}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={4}
+                value={yearPart}
+                onChange={handleYearChange}
+                placeholder="2027"
+                className="pin-box pin-box-year"
+                aria-label="Tahun Registrasi"
+              />
+              <span className="pin-sub-label">Tahun</span>
+            </div>
+
+            <span className="pin-separator">-</span>
+
+            {/* Sequence Input (3-4 Digits) */}
+            <div className="pin-field-wrap">
+              <input
+                ref={seqInputRef}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={5}
+                value={seqPart}
+                onChange={handleSeqChange}
+                onKeyDown={handleSeqKeyDown}
+                placeholder="001"
+                className="pin-box pin-box-seq"
+                aria-label="Nomor Urut Pendaftaran"
+                autoFocus
+              />
+              <span className="pin-sub-label">No. Urut</span>
+            </div>
+
+            {/* Submit Button */}
+            <button type="submit" disabled={loading} className="pin-submit-btn">
+              {loading ? (
+                <IconSpinner size={18} />
+              ) : (
+                <>
+                  <IconSearch size={18} />
+                  <span>Cek Status</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
+
         {error && (
           <div className="search-error">
             <IconAlertTriangle size={16} />
