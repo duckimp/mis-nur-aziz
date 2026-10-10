@@ -706,16 +706,31 @@ img {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.6rem 0.875rem;
+  padding: 0.65rem 1rem;
   border: 1.5px solid #e2e8f0;
   border-radius: 10px;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.alasan-option input[type="radio"] {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+.alasan-option span {
+  flex: 1;
+  line-height: 1.4;
+  color: #1e293b;
 }
 .alasan-option:hover { border-color: var(--primary); background: #f0fdf4; }
 .alasan-option.selected { border-color: var(--primary); background: #d1fae5; font-weight: 600; color: #065f46; }
-.alasan-option input { accent-color: var(--primary); }
+.alasan-option.selected span { color: #065f46; }
 
 .modal-actions-spmb {
   display: flex;
