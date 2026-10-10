@@ -24,35 +24,72 @@ export async function sendPushNotification({
     return { error: 'ONESIGNAL_REST_API_KEY not configured' };
   }
 
-  const payload: any = {
+  const basePayload: any = {
     app_id: appId,
     headings: { id: headings, en: headings },
     contents: { id: contents, en: contents },
     url: url || 'https://mis-nur-aziz.vercel.app/spmb/cek-status',
   };
 
-  if (sendToAll) {
-    payload.included_segments = ['Total Subscriptions'];
-  } else if (tagKey && tagValue) {
-    payload.filters = [
-      { field: 'tag', key: tagKey, relation: '=', value: tagValue }
-    ];
-  } else {
-    payload.included_segments = ['Total Subscriptions'];
-  }
-
   try {
-    const res = await fetch('https://onesignal.com/api/v1/notifications', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Basic ${restApiKey}`,
-      },
-      body: JSON.stringify(payload),
-    });
+    if (sendToAll) {
+      const payload = { ...basePayload, included_segments: ['Total Subscriptions'] };
+      const res = await fetch('https://onesignal.com/api/v1/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${restApiKey}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      console.log('[OneSignal Broadcast Result]:', JSON.stringify(data));
+      return { success: res.ok, data };
+    }
 
-    const data = await res.json();
-    return { success: res.ok, data };
+    if (tagValue) {
+      // 1. Kirim via External ID (OneSignal.login)
+      const aliasPayload = {
+        ...basePayload,
+        include_aliases: { external_id: [tagValue] },
+        target_channel: 'push',
+      };
+
+      const res1 = await fetch('https://onesignal.com/api/v1/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${restApiKey}`,
+        },
+        body: JSON.stringify(aliasPayload),
+      });
+      const data1 = await res1.json();
+      console.log('[OneSignal Push (External ID) Result]:', JSON.stringify(data1));
+
+      // 2. Kirim juga via Tag Filter (spmb_id)
+      const tagPayload = {
+        ...basePayload,
+        filters: [{ field: 'tag', key: tagKey || 'spmb_id', relation: '=', value: tagValue }],
+      };
+
+      const res2 = await fetch('https://onesignal.com/api/v1/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${restApiKey}`,
+        },
+        body: JSON.stringify(tagPayload),
+      });
+      const data2 = await res2.json();
+      console.log('[OneSignal Push (Tag Filter) Result]:', JSON.stringify(data2));
+
+      return {
+        success: res1.ok || res2.ok,
+        data: { aliasResult: data1, tagResult: data2 },
+      };
+    }
+
+    return { error: 'No target specified' };
   } catch (err: any) {
     console.error('[OneSignal Server Error]:', err);
     return { error: err.message };

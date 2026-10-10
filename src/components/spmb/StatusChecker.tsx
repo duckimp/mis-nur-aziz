@@ -81,16 +81,25 @@ export default function StatusChecker() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Nomor Registrasi tidak ditemukan.');
       setPendaftar(data);
-      // Sinkronkan tag spmb_id ke OneSignal untuk menerima notifikasi personal
+      // Sinkronkan login external_id & tag spmb_id ke OneSignal
       if (data?.registration_id && typeof window !== "undefined") {
         const win = window as any;
-        if (win.OneSignal?.User?.addTag) {
-          win.OneSignal.User.addTag("spmb_id", data.registration_id);
+        const regId = data.registration_id;
+        const bindDevice = async (os: any) => {
+          try {
+            if (os.login) await os.login(regId);
+            if (os.User?.addTag) await os.User.addTag("spmb_id", regId);
+            console.log("[OneSignal] Sinkronisasi akun & tag sukses:", regId);
+          } catch (e) {
+            console.info("[OneSignal] Sinkronisasi error:", e);
+          }
+        };
+
+        if (win.OneSignal) {
+          bindDevice(win.OneSignal);
         } else {
           win.OneSignalDeferred = win.OneSignalDeferred || [];
-          win.OneSignalDeferred.push((OneSignal: any) => {
-            OneSignal.User?.addTag?.("spmb_id", data.registration_id);
-          });
+          win.OneSignalDeferred.push(bindDevice);
         }
       }
     } catch (err: any) {

@@ -393,10 +393,32 @@ export default function SPMBForm({ settings }: Props) {
       setUploadStage('DONE');
       setStageMessage('Pendaftaran berhasil disimpan!');
 
+      const regId = result.registration_id;
       setTimeout(() => {
-        setRegistrationId(result.registration_id);
+        setRegistrationId(regId);
         setStep('success');
       }, 600);
+
+      // Otomatis bind perangkat ke Nomor Registrasi di OneSignal (login & addTag)
+      if (typeof window !== "undefined") {
+        const win = window as any;
+        const bindDevice = async (os: any) => {
+          try {
+            if (os.login) await os.login(regId);
+            if (os.User?.addTag) await os.User.addTag("spmb_id", regId);
+            console.log("[OneSignal] Perangkat otomatis terhubung ke:", regId);
+          } catch (e) {
+            console.info("[OneSignal] Bind error:", e);
+          }
+        };
+
+        if (win.OneSignal) {
+          bindDevice(win.OneSignal);
+        } else {
+          win.OneSignalDeferred = win.OneSignalDeferred || [];
+          win.OneSignalDeferred.push(bindDevice);
+        }
+      }
 
       // Prompt OneSignal notification
       setTimeout(() => {
