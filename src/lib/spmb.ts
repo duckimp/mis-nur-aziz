@@ -97,22 +97,27 @@ export function generateWAMessage(
   status: 'DITERIMA' | 'DITOLAK',
   nama: string,
   regId: string,
-  tahunAjaran?: string
+  tahunAjaran?: string,
+  catatan?: string
 ): string {
+  // Fallback defensif jika data undefined (misal dari cache browser lama)
+  const safeName = nama || '(Nama tidak tersedia)';
+  const safeRegId = regId || '(ID tidak tersedia)';
   const siteUrl = 'https://mis-nur-aziz.vercel.app';
   const taText = tahunAjaran ? ` Tahun Ajaran ${tahunAjaran}` : '';
+  const noteText = catatan ? `\n\n*Catatan dari Sekolah:*\n_"${catatan}"_` : '';
 
   if (status === 'DITERIMA') {
     return `Assalamu'alaikum Warahmatullahi Wabarakatuh,
 
-Yth. Bapak/Ibu Wali Murid dari *${nama}*,
+Yth. Bapak/Ibu Wali Murid dari *${safeName}*,
 
-Alhamdulillah, kami dari Panitia SPMB MIS Nur Aziz menginformasikan bahwa putra/putri Bapak/Ibu dengan ID Registrasi *${regId}* telah resmi dinyatakan:
+Alhamdulillah, kami dari Panitia SPMB MIS Nur Aziz menginformasikan bahwa putra/putri Bapak/Ibu dengan ID Registrasi *${safeRegId}* telah resmi dinyatakan:
 
-🎉 *DITERIMA SEBAGAI CALON SISWA BARU*${taText} 🎉
+🎉 *DITERIMA SEBAGAI CALON SISWA BARU*${taText} 🎉${noteText}
 
 Silakan melihat dan mengunduh Kartu Bukti Penerimaan Digital melalui tautan resmi berikut:
-${siteUrl}/spmb/cek-status?id=${regId}
+${siteUrl}/spmb/cek-status?id=${safeRegId}
 
 Untuk informasi jadwal daftar ulang dan orientasi siswa, panitia akan menghubungi melalui nomor ini.
 
@@ -122,9 +127,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.
 
   return `Assalamu'alaikum Warahmatullahi Wabarakatuh,
 
-Yth. Bapak/Ibu Wali Murid dari *${nama}*,
+Yth. Bapak/Ibu Wali Murid dari *${safeName}*,
 
-Kami dari Panitia SPMB MIS Nur Aziz menyampaikan permohonan maaf bahwa pendaftaran calon siswa dengan ID Registrasi *${regId}* pada kesempatan ini *belum dapat kami terima* dikarenakan keterbatasan kuota kelas.
+Kami dari Panitia SPMB MIS Nur Aziz menyampaikan permohonan maaf bahwa pendaftaran calon siswa dengan ID Registrasi *${safeRegId}* pada kesempatan ini *belum dapat kami terima* dikarenakan keterbatasan kuota kelas.${noteText}
 
 Kami mengucapkan terima kasih yang sebesar-besarnya atas kepercayaan dan partisipasi Bapak/Ibu. Semoga ananda selalu diberikan kemudahan dan kesuksesan di sekolah pilihan terbaik.
 
@@ -150,7 +155,7 @@ export function getAlasanBatalLabel(alasan: AlasanBatal): string {
     PINDAH_DOMISILI: 'Pindah Domisili',
     DITERIMA_SEKOLAH_LAIN: 'Diterima di Sekolah Lain',
     KENDALA_BIAYA: 'Kendala Biaya',
-    LAINNYA: 'Lainnya',
+    LAINNYA: 'Lainnya / Permintaan Orang Tua',
   };
   return labels[alasan] || alasan;
 }
