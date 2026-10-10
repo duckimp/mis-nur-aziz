@@ -1777,20 +1777,24 @@ img {
 
 /* ─── PIN / OTP Style Segmented Search Input ─── */
 .pin-search-container {
-  max-width: 540px;
+  max-width: 580px;
   margin: 0 auto;
   background: #ffffff;
   padding: 1.5rem 1.75rem;
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.05);
   border: 1px solid #e2e8f0;
+  box-sizing: border-box;
 }
 
-.pin-search-label {
+.pin-search-header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 1rem;
+}
+
+.pin-search-title {
   font-family: 'Outfit', sans-serif;
   font-size: 1rem;
   font-weight: 700;
@@ -1808,8 +1812,16 @@ img {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  gap: 0.5rem;
-  flex-wrap: nowrap;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.pin-inputs-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
 }
 
 .pin-prefix-badge {
@@ -1817,11 +1829,11 @@ img {
   border: 1.5px solid #a7f3d0;
   color: #059669;
   height: 52px;
-  padding: 0 1rem;
+  padding: 0 0.85rem;
   border-radius: 12px;
   font-family: 'Outfit', monospace;
   font-weight: 800;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   letter-spacing: 0.05em;
   user-select: none;
   display: inline-flex;
@@ -1831,7 +1843,7 @@ img {
 }
 
 .pin-separator {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #94a3b8;
   user-select: none;
@@ -1853,13 +1865,13 @@ img {
   border: 2px solid #e2e8f0;
   border-radius: 12px;
   font-family: 'Outfit', monospace;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #0f172a;
   text-align: center;
   outline: none;
   height: 52px;
-  padding: 0 0.5rem;
+  padding: 0 0.4rem;
   transition: all 0.2s ease;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
   box-sizing: border-box;
@@ -1872,16 +1884,16 @@ img {
 }
 
 .pin-box-year {
-  width: 82px;
+  width: 78px;
 }
 
 .pin-box-seq {
-  width: 90px;
+  width: 82px;
   color: #059669;
 }
 
 .pin-sub-label {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 600;
   color: #94a3b8;
   text-transform: uppercase;
@@ -1897,15 +1909,14 @@ img {
   color: #ffffff;
   border: none;
   height: 52px;
-  padding: 0 1.35rem;
+  padding: 0 1.25rem;
   border-radius: 12px;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
   transition: all 0.15s ease;
   white-space: nowrap;
-  margin-left: 0.25rem;
   box-sizing: border-box;
 }
 
@@ -1923,38 +1934,47 @@ img {
 @media (max-width: 640px) {
   .pin-search-container {
     padding: 1.25rem 1rem;
+    max-width: 100%;
   }
-  .pin-search-label {
+  .pin-search-header {
     flex-direction: column;
     gap: 2px;
     align-items: flex-start;
   }
   .pin-input-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+  }
+  .pin-inputs-row {
+    width: 100%;
+    justify-content: center;
     gap: 0.3rem;
   }
   .pin-prefix-badge {
-    height: 46px;
+    height: 48px;
     padding: 0 0.65rem;
     font-size: 0.95rem;
   }
   .pin-separator {
-    height: 46px;
+    height: 48px;
     font-size: 1rem;
   }
   .pin-box {
-    height: 46px;
-    font-size: 1.1rem;
-    padding: 0 0.25rem;
+    height: 48px;
+    font-size: 1.15rem;
   }
   .pin-box-year {
-    width: 68px;
+    width: 72px;
   }
   .pin-box-seq {
-    width: 75px;
+    width: 78px;
   }
   .pin-submit-btn {
+    width: 100%;
     height: 46px;
-    padding: 0 0.85rem;
-    font-size: 0.85rem;
+    font-size: 0.92rem;
+    justify-content: center;
+    margin-left: 0;
   }
 }

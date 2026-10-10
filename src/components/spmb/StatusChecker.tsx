@@ -236,55 +236,57 @@ export default function StatusChecker() {
       {/* Search Form PIN/Segmented Style */}
       <form onSubmit={handleSubmit} className="search-form-spmb">
         <div className="pin-search-container">
-          <label className="pin-search-label">
-            <span>Nomor Registrasi SPMB</span>
+          <div className="pin-search-header">
+            <span className="pin-search-title">Nomor Registrasi SPMB</span>
             <span className="pin-helper-text">Cukup ketik angka tahun & nomor urut</span>
-          </label>
+          </div>
 
           <div className="pin-input-group" onPaste={handlePaste}>
-            {/* Read-Only SPMB Badge Prefix */}
-            <div className="pin-prefix-badge" title="Format Awalan Resmi">
-              <span className="pin-badge-text">SPMB</span>
-            </div>
+            <div className="pin-inputs-row">
+              {/* Read-Only SPMB Badge Prefix */}
+              <div className="pin-prefix-badge" title="Format Awalan Resmi">
+                <span className="pin-badge-text">SPMB</span>
+              </div>
 
-            <span className="pin-separator">-</span>
+              <span className="pin-separator">-</span>
 
-            {/* Year Input (4 Digits) */}
-            <div className="pin-field-wrap">
-              <input
-                ref={yearInputRef}
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={4}
-                value={yearPart}
-                onChange={handleYearChange}
-                placeholder="2027"
-                className="pin-box pin-box-year"
-                aria-label="Tahun Registrasi"
-              />
-              <span className="pin-sub-label">Tahun</span>
-            </div>
+              {/* Year Input (4 Digits) */}
+              <div className="pin-field-wrap">
+                <input
+                  ref={yearInputRef}
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={4}
+                  value={yearPart}
+                  onChange={handleYearChange}
+                  placeholder={String(currentYear)}
+                  className="pin-box pin-box-year"
+                  aria-label="Tahun Registrasi"
+                />
+                <span className="pin-sub-label">Tahun</span>
+              </div>
 
-            <span className="pin-separator">-</span>
+              <span className="pin-separator">-</span>
 
-            {/* Sequence Input (3-4 Digits) */}
-            <div className="pin-field-wrap">
-              <input
-                ref={seqInputRef}
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={5}
-                value={seqPart}
-                onChange={handleSeqChange}
-                onKeyDown={handleSeqKeyDown}
-                placeholder="001"
-                className="pin-box pin-box-seq"
-                aria-label="Nomor Urut Pendaftaran"
-                autoFocus
-              />
-              <span className="pin-sub-label">No. Urut</span>
+              {/* Sequence Input (3-4 Digits) */}
+              <div className="pin-field-wrap">
+                <input
+                  ref={seqInputRef}
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={5}
+                  value={seqPart}
+                  onChange={handleSeqChange}
+                  onKeyDown={handleSeqKeyDown}
+                  placeholder="001"
+                  className="pin-box pin-box-seq"
+                  aria-label="Nomor Urut Pendaftaran"
+                  autoFocus
+                />
+                <span className="pin-sub-label">No. Urut</span>
+              </div>
             </div>
 
             {/* Submit Button */}

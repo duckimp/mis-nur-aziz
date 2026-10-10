@@ -44,7 +44,7 @@ import StatusChecker from '../../components/spmb/StatusChecker';
 <style>
   .spmb-hero {
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #f0fdf4 100%);
-    padding-top: 140px;
+    padding-top: 160px;
     padding-bottom: 2.5rem;
     border-bottom: 1px solid #d1fae5;
   }
@@ -85,5 +85,11 @@ import StatusChecker from '../../components/spmb/StatusChecker';
   .checker-wrapper {
     max-width: 780px;
     margin: 0 auto;
+  }
+  @media (max-width: 640px) {
+    .spmb-hero {
+      padding-top: 130px;
+      padding-bottom: 2rem;
+    }
   }
 </style>
