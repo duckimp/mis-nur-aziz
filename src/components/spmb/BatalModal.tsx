@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   IconBan,
   IconX,
@@ -48,7 +49,12 @@ export default function BatalModal({ registrationId, namaMurid, onClose, onSucce
     }
   };
 
-  return (
+  // Render modal ke document.body via Portal agar position:fixed selalu ke viewport
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); return () => setMounted(false); }, []);
+  if (!mounted) return null;
+
+  return createPortal(
     <div className="modal-overlay-spmb" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal-card-spmb">
         <button onClick={onClose} className="modal-close-spmb" aria-label="Tutup">
@@ -123,5 +129,5 @@ export default function BatalModal({ registrationId, namaMurid, onClose, onSucce
         </form>
       </div>
     </div>
-  );
+  , document.body);
 }
