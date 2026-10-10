@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import imageCompression from 'browser-image-compression';
 import { SPMBFormSchema } from '../../lib/spmb';
 import {
@@ -446,8 +447,9 @@ export default function SPMBForm({ settings }: Props) {
   };
 
   if (step === 'uploading') {
-    return (
-      <div className="spmb-uploading-card">
+    return createPortal(
+      <div className="spmb-upload-overlay">
+        <div className="spmb-uploading-card">
         <div className="upload-header-box">
           <div className="upload-spinner-ring">
             <IconSpinner size={32} />
@@ -502,8 +504,9 @@ export default function SPMBForm({ settings }: Props) {
           <IconInfo size={15} />
           <span>Foto otomatis dioptimasi dan dikonversi ke WebP untuk menghemat kuota dan mempercepat transmisi. Mohon jangan menutup halaman ini.</span>
         </div>
+        </div>
       </div>
-    );
+    , document.body);
   }
 
   return (
