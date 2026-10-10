@@ -40,6 +40,8 @@ export default function SPMBForm({ settings }: Props) {
   const [registrationId, setRegistrationId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [notifEnabled, setNotifEnabled] = useState(false);
+  const [countryCode, setCountryCode] = useState("62");
+  const [phoneNum, setPhoneNum] = useState("");
 
   // Progress tracking states
   const [uploadStage, setUploadStage] = useState<UploadStage>('COMPRESS_KK');
@@ -302,6 +304,15 @@ export default function SPMBForm({ settings }: Props) {
     }
   };
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value.replace(/\D/g, "");
+    if (countryCode === "62") {
+      if (val.startsWith("62")) val = val.slice(2);
+      if (val.startsWith("0")) val = val.replace(/^0+/, "");
+    }
+    setPhoneNum(val);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -313,7 +324,7 @@ export default function SPMBForm({ settings }: Props) {
     const nama = (formData.get('nama_lengkap') as string) || '';
     const tempat = (formData.get('tempat_lahir') as string) || '';
     const tgl = (formData.get('tanggal_lahir') as string) || '';
-    const wa = (formData.get('nomor_wa') as string) || '';
+    const wa = phoneNum.trim() ? (countryCode + phoneNum.trim()) : ((formData.get('nomor_wa') as string) || '');
     const kk = formData.get('foto_kk') as File;
     const akta = formData.get('foto_akta') as File;
 
@@ -552,15 +563,39 @@ export default function SPMBForm({ settings }: Props) {
 
         <div className="field-group-spmb">
           <label htmlFor="nomor_wa">Nomor WhatsApp Orang Tua / Wali <span className="required">*</span></label>
-          <input
-            id="nomor_wa"
-            name="nomor_wa"
-            type="tel"
-            placeholder="Contoh: 081234567890"
-            className={fieldErrors.nomor_wa ? 'error' : ''}
-          />
+          <div className="phone-input-group">
+            <div className="country-code-select-wrap">
+              <select
+                id="country_code"
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value)}
+                className="country-code-select"
+                aria-label="Kode Negara"
+              >
+                <option value="62">🇮🇩 +62</option>
+                <option value="60">🇲🇾 +60</option>
+                <option value="65">🇸🇬 +65</option>
+                <option value="673">🇧🇳 +673</option>
+                <option value="966">🇸🇦 +966</option>
+              </select>
+            </div>
+            <div className="phone-number-field-wrap">
+              <input
+                id="nomor_wa"
+                name="nomor_wa"
+                type="tel"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={phoneNum}
+                onChange={handlePhoneChange}
+                placeholder="85694841807"
+                className={`phone-number-input ${fieldErrors.nomor_wa ? "error" : ""}`}
+                required
+              />
+            </div>
+          </div>
           {fieldErrors.nomor_wa && <span className="field-error">{fieldErrors.nomor_wa}</span>}
-          <span className="field-hint">Nomor WhatsApp aktif untuk menerima info hasil seleksi & kartu bukti</span>
+          <span className="field-hint">Pilih kode negara & ketik nomor WhatsApp tanpa angka 0 di depan (contoh: 85694841807).</span>
         </div>
       </div>
 

@@ -296,7 +296,7 @@ export default function SPMBManager() {
                     </td>
                     <td>
                       <a
-                        href={`https://wa.me/${item.nomor_wa.replace(/\D/g, '')}`}
+                        href={`https://wa.me/${formatWhatsApp(item.nomor_wa)}`}
                         target="_blank"
                         rel="noreferrer"
                         className="wa-link"

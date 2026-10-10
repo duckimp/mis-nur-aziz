@@ -17,8 +17,9 @@ export const SPMBFormSchema = z.object({
   tanggal_lahir: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Format tanggal tidak valid'),
   nomor_wa: z
     .string()
-    .regex(/^(\+62|62|0)8[0-9]{8,12}$/, 'Format nomor WhatsApp tidak valid')
-    .max(20),
+    .min(8, 'Nomor WhatsApp minimal 8 digit')
+    .max(20, 'Nomor WhatsApp terlalu panjang')
+    .regex(/^(\+?\d{8,16})$/, 'Format nomor WhatsApp tidak valid'),
 });
 
 export const CekStatusSchema = z.object({
@@ -70,29 +71,13 @@ export interface SPMBSettings {
 // ============================================================
 
 /**
- * Generate registration ID unik
- * Format: SPMB-YYYY-XXX (e.g. SPMB-2026-001)
- */
-export async function generateRegistrationId(tahun_ajaran: string): Promise<string> {
-  const supabase = getSupabaseClient();
-  const year = tahun_ajaran.split('/')[0];
-
-  const { count } = await supabase
-    .from('spmb_pendaftar')
-    .select('*', { count: 'exact', head: true })
-    .eq('tahun_ajaran', tahun_ajaran);
-
-  const seq = String((count ?? 0) + 1).padStart(3, '0');
-  return `SPMB-${year}-${seq}`;
-}
-
-/**
- * Format nomor WA ke format internasional
+ * Format nomor WA ke format internasional murni angka (contoh: 6285694841807)
  */
 export function formatWhatsApp(nomor: string): string {
+  if (!nomor) return '';
   let clean = nomor.replace(/\D/g, '');
   if (clean.startsWith('0')) clean = '62' + clean.slice(1);
-  if (!clean.startsWith('62')) clean = '62' + clean;
+  if (clean.startsWith('8')) clean = '62' + clean;
   return clean;
 }
 
@@ -111,32 +96,40 @@ export function generateWALink(nomor: string, pesan: string): string {
 export function generateWAMessage(
   status: 'DITERIMA' | 'DITOLAK',
   nama: string,
-  regId: string
+  regId: string,
+  tahunAjaran?: string
 ): string {
   const siteUrl = 'https://mis-nur-aziz.vercel.app';
+  const taText = tahunAjaran ? ` Tahun Ajaran ${tahunAjaran}` : '';
 
   if (status === 'DITERIMA') {
-    return `Assalamu'alaikum Bapak/Ibu wali murid *${nama}*,
+    return `Assalamu'alaikum Warahmatullahi Wabarakatuh,
 
-Kami dari MIS Nur Aziz dengan senang hati menyampaikan bahwa putra/putri Bapak/Ibu dengan ID Registrasi *${regId}* telah resmi *DITERIMA* di MIS Nur Aziz. 🎉
+Yth. Bapak/Ibu Wali Murid dari *${nama}*,
 
-Silakan cek kartu bukti penerimaan di:
-${siteUrl}/spmb/cek-status
+Alhamdulillah, kami dari Panitia SPMB MIS Nur Aziz menginformasikan bahwa putra/putri Bapak/Ibu dengan ID Registrasi *${regId}* telah resmi dinyatakan:
 
-Untuk informasi daftar ulang, silakan hubungi pihak sekolah.
+🎉 *DITERIMA SEBAGAI CALON SISWA BARU*${taText} 🎉
 
-Wassalamu'alaikum Wr. Wb.
-_MIS Nur Aziz_`;
+Silakan melihat dan mengunduh Kartu Bukti Penerimaan Digital melalui tautan resmi berikut:
+${siteUrl}/spmb/cek-status?id=${regId}
+
+Untuk informasi jadwal daftar ulang dan orientasi siswa, panitia akan menghubungi melalui nomor ini.
+
+Wassalamu'alaikum Warahmatullahi Wabarakatuh.
+*Panitia SPMB MIS Nur Aziz*`;
   }
 
-  return `Assalamu'alaikum Bapak/Ibu wali murid *${nama}*,
+  return `Assalamu'alaikum Warahmatullahi Wabarakatuh,
 
-Kami dari MIS Nur Aziz menyampaikan bahwa pendaftaran putra/putri Bapak/Ibu dengan ID Registrasi *${regId}* belum dapat kami terima pada tahun ajaran ini.
+Yth. Bapak/Ibu Wali Murid dari *${nama}*,
 
-Kami mohon maaf atas ketidaknyamanan ini. Untuk informasi lebih lanjut, silakan hubungi pihak sekolah secara langsung.
+Kami dari Panitia SPMB MIS Nur Aziz menyampaikan permohonan maaf bahwa pendaftaran calon siswa dengan ID Registrasi *${regId}* pada kesempatan ini *belum dapat kami terima* dikarenakan keterbatasan kuota kelas.
 
-Wassalamu'alaikum Wr. Wb.
-_MIS Nur Aziz_`;
+Kami mengucapkan terima kasih yang sebesar-besarnya atas kepercayaan dan partisipasi Bapak/Ibu. Semoga ananda selalu diberikan kemudahan dan kesuksesan di sekolah pilihan terbaik.
+
+Wassalamu'alaikum Warahmatullahi Wabarakatuh.
+*Panitia SPMB MIS Nur Aziz*`;
 }
 
 /**

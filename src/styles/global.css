@@ -1978,3 +1978,79 @@ img {
     margin-left: 0;
   }
 }
+/* ─── Phone Number with Country Code Picker ─── */
+.phone-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.country-code-select-wrap {
+  flex-shrink: 0;
+}
+
+.country-code-select {
+  padding: 0.8rem 0.9rem;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #0f172a;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 48px;
+  box-sizing: border-box;
+}
+
+.country-code-select:focus {
+  border-color: #059669;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+}
+
+.phone-number-field-wrap {
+  flex: 1;
+}
+
+.phone-number-input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-family: 'Outfit', monospace;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  outline: none;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+  height: 48px;
+  box-sizing: border-box;
+}
+
+.phone-number-input:focus {
+  border-color: #059669;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+}
+
+.phone-number-input.error {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+@media (max-width: 480px) {
+  .country-code-select {
+    padding: 0.75rem 0.6rem;
+    font-size: 0.88rem;
+  }
+  .phone-number-input {
+    padding: 0.75rem 0.75rem;
+    font-size: 0.92rem;
+  }
+}
