@@ -44,13 +44,14 @@
 
 <style>
   .notif-bar {
+    position: relative;
+    margin-top: 60px; /* Offset tepat di bawah 60px fixed Navbar */
     background: linear-gradient(90deg, #064e3b 0%, #065f46 50%, #047857 100%);
     color: #ffffff;
     border-bottom: 1px solid rgba(167, 243, 208, 0.25);
-    box-shadow: 0 4px 12px rgba(6, 78, 59, 0.15);
-    position: relative;
+    box-shadow: 0 4px 12px rgba(6, 78, 59, 0.18);
     z-index: 990;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
   }
 
   .notif-bar-inner {
@@ -138,7 +139,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #f59e0b; /* default pending/unknown */
+    background: #f59e0b;
   }
 
   .status-indicator-dot.active {
@@ -242,7 +243,6 @@
   (function initNotifBanner() {
     const container = document.getElementById('notif-bar-container');
     const bellIcon = document.getElementById('notif-bell-icon');
-    const titleEl = document.getElementById('notif-bar-title');
     const descEl = document.getElementById('notif-bar-desc');
     const dotEl = document.getElementById('notif-indicator-dot');
     const labelEl = document.getElementById('notif-status-label');
@@ -263,7 +263,7 @@
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
 
-    // Jika di iOS tapi belum Add to Home Screen, biarkan PWAInstallBanner yang memandu
+    // Jika di iOS Safari biasa (belum Add to Home Screen), sembunyikan banner ini
     if (isIOS && !isStandalone) {
       return;
     }
@@ -285,8 +285,8 @@
         isSubscribed = true;
         if (dotEl) { dotEl.className = 'status-indicator-dot active'; }
         if (labelEl) labelEl.textContent = 'Aktif';
-        if (descEl) descEl.textContent = 'Notifikasi SPMB aktif. Anda akan menerima pembaruan status.';
-        btnText.textContent = 'Matikan Notifikasi';
+        if (descEl) descEl.textContent = 'Notifikasi SPMB aktif. Anda akan menerima info kelulusan & jadwal.';
+        btnText.textContent = 'Matikan Sekarang';
         actionBtn.className = 'notif-btn notif-btn-disable';
       } else if (state === 'BLOCKED') {
         isSubscribed = false;
@@ -306,62 +306,49 @@
       }
     }
 
-    // Periksa status izin browser langsung
-    function syncBrowserPermission() {
-      if (Notification.permission === 'denied') {
-        updateUIState('BLOCKED');
-      } else if (Notification.permission === 'granted') {
-        // Cek OneSignal Subscription
-        checkOneSignalState();
-      } else {
-        updateUIState('INACTIVE');
-      }
+    // 1. Initial State Check (Konsisten antar halaman via localStorage & browser permission)
+    const savedOptOut = localStorage.getItem('mis_notif_opted_out') === 'true';
+
+    if (Notification.permission === 'denied') {
+      updateUIState('BLOCKED');
+    } else if (Notification.permission === 'granted' && !savedOptOut) {
+      updateUIState('ACTIVE');
+    } else {
+      updateUIState('INACTIVE');
     }
 
-    async function checkOneSignalState() {
-      const win = window as any;
-      if (win.OneSignal && win.OneSignal.User && win.OneSignal.User.PushSubscription) {
-        try {
-          const optedIn = win.OneSignal.User.PushSubscription.optedIn;
-          if (optedIn && Notification.permission === 'granted') {
-            updateUIState('ACTIVE');
-          } else {
-            updateUIState('INACTIVE');
-          }
-        } catch (e) {
-          updateUIState(Notification.permission === 'granted' ? 'ACTIVE' : 'INACTIVE');
-        }
-      } else {
-        // Fallback ke status permission browser
-        updateUIState(Notification.permission === 'granted' ? 'ACTIVE' : 'INACTIVE');
-      }
-    }
-
-    // Inisialisasi awal
-    syncBrowserPermission();
-
-    // Tunggu OneSignal selesai init untuk sinkronisasi akurat
+    // 2. Synchronize when OneSignal SDK finishes loading
     const win = window as any;
     win.OneSignalDeferred = win.OneSignalDeferred || [];
     win.OneSignalDeferred.push(async function(OneSignal: any) {
       try {
         if (OneSignal.User && OneSignal.User.PushSubscription) {
+          // Listen to subscription changes
           OneSignal.User.PushSubscription.addEventListener('change', function(event: any) {
             if (event && event.current && event.current.optedIn) {
+              localStorage.removeItem('mis_notif_opted_out');
               updateUIState('ACTIVE');
             } else {
+              localStorage.setItem('mis_notif_opted_out', 'true');
               updateUIState('INACTIVE');
             }
           });
+
           const isOptedIn = OneSignal.User.PushSubscription.optedIn;
-          updateUIState(isOptedIn && Notification.permission === 'granted' ? 'ACTIVE' : 'INACTIVE');
+          if (Notification.permission === 'granted') {
+            if (isOptedIn === false && savedOptOut) {
+              updateUIState('INACTIVE');
+            } else {
+              updateUIState('ACTIVE');
+            }
+          }
         }
       } catch (err) {
         console.info('OneSignal banner sync:', err);
       }
     });
 
-    // Handle Klik Tombol Action / Toggle
+    // 3. Handle Action Click (Toggle ON / OFF)
     actionBtn.addEventListener('click', async () => {
       if (Notification.permission === 'denied') {
         alert('Izin notifikasi diblokir oleh browser Anda.\n\nCara mengaktifkan:\n1. Ketuk ikon gembok / setelan situs di samping alamat web (URL)\n2. Pilih "Izin" atau "Permissions"\n3. Ubah Notifikasi menjadi "Izinkan" (Allow)\n4. Muat ulang halaman.');
@@ -377,12 +364,14 @@
 
         if (isSubscribed) {
           // Matikan Notifikasi (Opt Out)
+          localStorage.setItem('mis_notif_opted_out', 'true');
           if (oneSignal && oneSignal.User && oneSignal.User.PushSubscription) {
             await oneSignal.User.PushSubscription.optOut();
           }
           updateUIState('INACTIVE');
         } else {
           // Aktifkan Notifikasi (Opt In & Request Permission)
+          localStorage.removeItem('mis_notif_opted_out');
           let granted = false;
           if (oneSignal && oneSignal.Notifications) {
             granted = await oneSignal.Notifications.requestPermission();
@@ -404,11 +393,11 @@
         }
       } catch (err: any) {
         console.error('Toggle notification error:', err);
-        syncBrowserPermission();
+        updateUIState(Notification.permission === 'granted' ? 'ACTIVE' : 'INACTIVE');
       }
     });
 
-    // Handle Tombol Tutup Banner
+    // 4. Handle Close Button
     closeBtn?.addEventListener('click', () => {
       container.style.display = 'none';
       sessionStorage.setItem('notif_bar_dismissed', 'true');
