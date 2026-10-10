@@ -1,0 +1,417 @@
+---
+// NotificationBanner.astro - Sub-navbar Push Notification Toggle Banner
+---
+
+<div id="notif-bar-container" class="notif-bar" style="display: none;">
+  <div class="notif-bar-inner">
+    <!-- Left Icon & Info -->
+    <div class="notif-bar-left">
+      <div class="notif-bell-icon" id="notif-bell-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+      </div>
+      <div class="notif-bar-text">
+        <span class="notif-bar-title" id="notif-bar-title">Notifikasi Pengumuman SPMB</span>
+        <span class="notif-bar-desc" id="notif-bar-desc">Dapatkan info kelulusan & jadwal kegiatan langsung di HP Anda.</span>
+      </div>
+    </div>
+
+    <!-- Right Controls / Toggle -->
+    <div class="notif-bar-right">
+      <div class="notif-status-badge" id="notif-status-badge">
+        <span class="status-indicator-dot" id="notif-indicator-dot"></span>
+        <span id="notif-status-label">Mengecek...</span>
+      </div>
+
+      <!-- Action Button / Toggle -->
+      <button id="notif-action-btn" class="notif-btn notif-btn-enable" type="button">
+        <span id="notif-btn-spinner" class="notif-spinner" style="display: none;"></span>
+        <span id="notif-btn-text">Aktifkan</span>
+      </button>
+
+      <!-- Dismiss Button -->
+      <button id="notif-close-btn" class="notif-dismiss-btn" type="button" aria-label="Sembunyikan banner">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .notif-bar {
+    background: linear-gradient(90deg, #064e3b 0%, #065f46 50%, #047857 100%);
+    color: #ffffff;
+    border-bottom: 1px solid rgba(167, 243, 208, 0.25);
+    box-shadow: 0 4px 12px rgba(6, 78, 59, 0.15);
+    position: relative;
+    z-index: 990;
+    transition: all 0.3s ease;
+  }
+
+  .notif-bar-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.65rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .notif-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 260px;
+  }
+
+  .notif-bell-icon {
+    width: 34px;
+    height: 34px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #a7f3d0;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+
+  .notif-bell-icon.ringing {
+    animation: ring 1.5s ease infinite;
+  }
+
+  @keyframes ring {
+    0%, 100% { transform: rotate(0); }
+    10%, 30%, 50% { transform: rotate(14deg); }
+    20%, 40% { transform: rotate(-14deg); }
+    60% { transform: rotate(0); }
+  }
+
+  .notif-bar-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .notif-bar-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.01em;
+  }
+
+  .notif-bar-desc {
+    font-size: 0.78rem;
+    color: #d1fae5;
+    opacity: 0.92;
+  }
+
+  .notif-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .notif-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .status-indicator-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f59e0b; /* default pending/unknown */
+  }
+
+  .status-indicator-dot.active {
+    background: #34d399;
+    box-shadow: 0 0 8px #34d399;
+  }
+
+  .status-indicator-dot.inactive {
+    background: #94a3b8;
+  }
+
+  .status-indicator-dot.blocked {
+    background: #f87171;
+  }
+
+  .notif-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .notif-btn-enable {
+    background: #ffffff;
+    color: #065f46;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .notif-btn-enable:hover {
+    background: #ecfdf5;
+    transform: translateY(-1px);
+  }
+
+  .notif-btn-disable {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .notif-btn-disable:hover {
+    background: rgba(239, 68, 68, 0.85);
+    border-color: #ef4444;
+  }
+
+  .notif-dismiss-btn {
+    background: transparent;
+    border: none;
+    color: #a7f3d0;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+    transition: all 0.15s;
+  }
+
+  .notif-dismiss-btn:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .notif-spinner {
+    width: 12px;
+    height: 12px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: notifSpin 0.7s linear infinite;
+  }
+
+  @keyframes notifSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 640px) {
+    .notif-bar-inner {
+      padding: 0.55rem 1rem;
+    }
+    .notif-bar-desc {
+      display: none;
+    }
+    .notif-bar-title {
+      font-size: 0.82rem;
+    }
+    .notif-status-badge {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  (function initNotifBanner() {
+    const container = document.getElementById('notif-bar-container');
+    const bellIcon = document.getElementById('notif-bell-icon');
+    const titleEl = document.getElementById('notif-bar-title');
+    const descEl = document.getElementById('notif-bar-desc');
+    const dotEl = document.getElementById('notif-indicator-dot');
+    const labelEl = document.getElementById('notif-status-label');
+    const actionBtn = document.getElementById('notif-action-btn');
+    const btnText = document.getElementById('notif-btn-text');
+    const spinner = document.getElementById('notif-btn-spinner');
+    const closeBtn = document.getElementById('notif-close-btn');
+
+    if (!container || !actionBtn || !btnText) return;
+
+    // Cek jika user sudah menutup banner di session ini
+    if (sessionStorage.getItem('notif_bar_dismissed') === 'true') {
+      return;
+    }
+
+    // Deteksi browser / Push support
+    const isPushSupported = 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+
+    // Jika di iOS tapi belum Add to Home Screen, biarkan PWAInstallBanner yang memandu
+    if (isIOS && !isStandalone) {
+      return;
+    }
+
+    if (!isPushSupported) {
+      return;
+    }
+
+    // Tampilkan banner
+    container.style.display = 'block';
+
+    let isSubscribed = false;
+
+    function updateUIState(state: 'ACTIVE' | 'INACTIVE' | 'BLOCKED' | 'LOADING') {
+      if (spinner) spinner.style.display = state === 'LOADING' ? 'inline-block' : 'none';
+      if (bellIcon) bellIcon.classList.remove('ringing');
+
+      if (state === 'ACTIVE') {
+        isSubscribed = true;
+        if (dotEl) { dotEl.className = 'status-indicator-dot active'; }
+        if (labelEl) labelEl.textContent = 'Aktif';
+        if (descEl) descEl.textContent = 'Notifikasi SPMB aktif. Anda akan menerima pembaruan status.';
+        btnText.textContent = 'Matikan Notifikasi';
+        actionBtn.className = 'notif-btn notif-btn-disable';
+      } else if (state === 'BLOCKED') {
+        isSubscribed = false;
+        if (dotEl) { dotEl.className = 'status-indicator-dot blocked'; }
+        if (labelEl) labelEl.textContent = 'Diblokir';
+        if (descEl) descEl.textContent = 'Izin notifikasi diblokir di browser. Buka setelan situs untuk mengizinkan.';
+        btnText.textContent = 'Bantuan Izin';
+        actionBtn.className = 'notif-btn notif-btn-enable';
+      } else if (state === 'INACTIVE') {
+        isSubscribed = false;
+        if (bellIcon) bellIcon.classList.add('ringing');
+        if (dotEl) { dotEl.className = 'status-indicator-dot inactive'; }
+        if (labelEl) labelEl.textContent = 'Nonaktif';
+        if (descEl) descEl.textContent = 'Dapatkan info kelulusan & jadwal kegiatan langsung di HP Anda.';
+        btnText.textContent = 'Aktifkan Sekarang';
+        actionBtn.className = 'notif-btn notif-btn-enable';
+      }
+    }
+
+    // Periksa status izin browser langsung
+    function syncBrowserPermission() {
+      if (Notification.permission === 'denied') {
+        updateUIState('BLOCKED');
+      } else if (Notification.permission === 'granted') {
+        // Cek OneSignal Subscription
+        checkOneSignalState();
+      } else {
+        updateUIState('INACTIVE');
+      }
+    }
+
+    async function checkOneSignalState() {
+      const win = window as any;
+      if (win.OneSignal && win.OneSignal.User && win.OneSignal.User.PushSubscription) {
+        try {
+          const optedIn = win.OneSignal.User.PushSubscription.optedIn;
+          if (optedIn && Notification.permission === 'granted') {
+            updateUIState('ACTIVE');
+          } else {
+            updateUIState('INACTIVE');
+          }
+        } catch (e) {
+          updateUIState(Notification.permission === 'granted' ? 'ACTIVE' : 'INACTIVE');
+        }
+      } else {
+        // Fallback ke status permission browser
+        updateUIState(Notification.permission === 'granted' ? 'ACTIVE' : 'INACTIVE');
+      }
+    }
+
+    // Inisialisasi awal
+    syncBrowserPermission();
+
+    // Tunggu OneSignal selesai init untuk sinkronisasi akurat
+    const win = window as any;
+    win.OneSignalDeferred = win.OneSignalDeferred || [];
+    win.OneSignalDeferred.push(async function(OneSignal: any) {
+      try {
+        if (OneSignal.User && OneSignal.User.PushSubscription) {
+          OneSignal.User.PushSubscription.addEventListener('change', function(event: any) {
+            if (event && event.current && event.current.optedIn) {
+              updateUIState('ACTIVE');
+            } else {
+              updateUIState('INACTIVE');
+            }
+          });
+          const isOptedIn = OneSignal.User.PushSubscription.optedIn;
+          updateUIState(isOptedIn && Notification.permission === 'granted' ? 'ACTIVE' : 'INACTIVE');
+        }
+      } catch (err) {
+        console.info('OneSignal banner sync:', err);
+      }
+    });
+
+    // Handle Klik Tombol Action / Toggle
+    actionBtn.addEventListener('click', async () => {
+      if (Notification.permission === 'denied') {
+        alert('Izin notifikasi diblokir oleh browser Anda.\n\nCara mengaktifkan:\n1. Ketuk ikon gembok / setelan situs di samping alamat web (URL)\n2. Pilih "Izin" atau "Permissions"\n3. Ubah Notifikasi menjadi "Izinkan" (Allow)\n4. Muat ulang halaman.');
+        return;
+      }
+
+      updateUIState('LOADING');
+      btnText.textContent = 'Memproses...';
+
+      try {
+        const win = window as any;
+        const oneSignal = win.OneSignal;
+
+        if (isSubscribed) {
+          // Matikan Notifikasi (Opt Out)
+          if (oneSignal && oneSignal.User && oneSignal.User.PushSubscription) {
+            await oneSignal.User.PushSubscription.optOut();
+          }
+          updateUIState('INACTIVE');
+        } else {
+          // Aktifkan Notifikasi (Opt In & Request Permission)
+          let granted = false;
+          if (oneSignal && oneSignal.Notifications) {
+            granted = await oneSignal.Notifications.requestPermission();
+            if (oneSignal.User?.PushSubscription) {
+              await oneSignal.User.PushSubscription.optIn();
+            }
+          } else {
+            const res = await Notification.requestPermission();
+            granted = res === 'granted';
+          }
+
+          if (granted || Notification.permission === 'granted') {
+            updateUIState('ACTIVE');
+          } else if (Notification.permission === 'denied') {
+            updateUIState('BLOCKED');
+          } else {
+            updateUIState('INACTIVE');
+          }
+        }
+      } catch (err: any) {
+        console.error('Toggle notification error:', err);
+        syncBrowserPermission();
+      }
+    });
+
+    // Handle Tombol Tutup Banner
+    closeBtn?.addEventListener('click', () => {
+      container.style.display = 'none';
+      sessionStorage.setItem('notif_bar_dismissed', 'true');
+    });
+  })();
+</script>
