@@ -58,7 +58,7 @@ const statusConfig = {
 
 export default function StatusChecker() {
   const currentYear = new Date().getFullYear();
-  const [yearPart, setYearPart] = useState(String(currentYear));
+  const [yearPart, setYearPart] = useState('');
   const [seqPart, setSeqPart] = useState('');
   
   const [loading, setLoading] = useState(false);

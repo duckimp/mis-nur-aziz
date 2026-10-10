@@ -1806,7 +1806,7 @@ img {
 
 .pin-input-group {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   gap: 0.5rem;
   flex-wrap: nowrap;
@@ -1816,23 +1816,29 @@ img {
   background: #ecfdf5;
   border: 1.5px solid #a7f3d0;
   color: #059669;
-  padding: 0.75rem 0.9rem;
+  height: 52px;
+  padding: 0 1rem;
   border-radius: 12px;
   font-family: 'Outfit', monospace;
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   letter-spacing: 0.05em;
   user-select: none;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 .pin-separator {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: #94a3b8;
   user-select: none;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pin-field-wrap {
@@ -1852,9 +1858,11 @@ img {
   color: #0f172a;
   text-align: center;
   outline: none;
-  padding: 0.65rem 0.25rem;
+  height: 52px;
+  padding: 0 0.5rem;
   transition: all 0.2s ease;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
 }
 
 .pin-box:focus {
@@ -1864,7 +1872,7 @@ img {
 }
 
 .pin-box-year {
-  width: 80px;
+  width: 82px;
 }
 
 .pin-box-seq {
@@ -1888,7 +1896,8 @@ img {
   background: linear-gradient(135deg, #059669, #047857);
   color: #ffffff;
   border: none;
-  padding: 0.8rem 1.25rem;
+  height: 52px;
+  padding: 0 1.35rem;
   border-radius: 12px;
   font-size: 0.92rem;
   font-weight: 700;
@@ -1897,8 +1906,7 @@ img {
   transition: all 0.15s ease;
   white-space: nowrap;
   margin-left: 0.25rem;
-  align-self: flex-start;
-  height: 48px;
+  box-sizing: border-box;
 }
 
 .pin-submit-btn:hover:not(:disabled) {
@@ -1925,15 +1933,18 @@ img {
     gap: 0.3rem;
   }
   .pin-prefix-badge {
-    padding: 0.65rem 0.6rem;
+    height: 46px;
+    padding: 0 0.65rem;
     font-size: 0.95rem;
   }
   .pin-separator {
+    height: 46px;
     font-size: 1rem;
   }
   .pin-box {
+    height: 46px;
     font-size: 1.1rem;
-    padding: 0.6rem 0.2rem;
+    padding: 0 0.25rem;
   }
   .pin-box-year {
     width: 68px;
@@ -1942,8 +1953,8 @@ img {
     width: 75px;
   }
   .pin-submit-btn {
-    padding: 0.65rem 0.9rem;
+    height: 46px;
+    padding: 0 0.85rem;
     font-size: 0.85rem;
-    height: 44px;
   }
 }
