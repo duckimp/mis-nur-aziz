@@ -123,8 +123,11 @@ try {
 			});
 			if ("serviceWorker" in navigator) {
 				window.addEventListener("load", function() {
-					navigator.serviceWorker.register("/OneSignalSDKWorker.js", { scope: "/" })
-						.catch(function(err) { console.info("SW registration:", err); });
+					navigator.serviceWorker.getRegistrations().then(function(regs) {
+						for (var i = 0; i < regs.length; i++) {
+							regs[i].update();
+						}
+					});
 				});
 			}
 		</script>
