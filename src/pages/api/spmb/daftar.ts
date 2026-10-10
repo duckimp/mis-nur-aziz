@@ -3,9 +3,10 @@ import { createServerClient, parseCookieHeader } from '@supabase/ssr';
 import { SPMBFormSchema } from '../../../lib/spmb';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
+  const supabaseKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY || import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
   const supabase = createServerClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    supabaseKey,
     {
       cookies: {
         getAll() {
