@@ -77,15 +77,38 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       );
     }
 
-    // 5. Generate registration ID
-    const { count: existingCount } = await supabase
-      .from('spmb_pendaftar')
-      .select('*', { count: 'exact', head: true })
-      .eq('tahun_ajaran', settings.tahun_ajaran);
-
+    // 5. Generate Guaranteed Unique Registration ID (Max sequence + safety check)
     const year = settings.tahun_ajaran.split('/')[0];
-    const seq = String((existingCount ?? 0) + 1).padStart(3, '0');
-    const registrationId = `SPMB-${year}-${seq}`;
+    const { data: existingRecords } = await supabase
+      .from('spmb_pendaftar')
+      .select('registration_id');
+
+    let maxSeq = 0;
+    const existingSet = new Set<string>();
+
+    if (existingRecords && existingRecords.length > 0) {
+      for (const r of existingRecords) {
+        if (r.registration_id) {
+          existingSet.add(r.registration_id);
+          if (r.registration_id.startsWith(`SPMB-${year}-`)) {
+            const parts = r.registration_id.split('-');
+            const num = parseInt(parts[parts.length - 1], 10);
+            if (!isNaN(num) && num > maxSeq) {
+              maxSeq = num;
+            }
+          }
+        }
+      }
+    }
+
+    let nextSeq = maxSeq + 1;
+    let registrationId = `SPMB-${year}-${String(nextSeq).padStart(3, '0')}`;
+
+    // Loop pencegah tabrakan nomor ID
+    while (existingSet.has(registrationId)) {
+      nextSeq++;
+      registrationId = `SPMB-${year}-${String(nextSeq).padStart(3, '0')}`;
+    }
 
     // 6. Upload foto KK
     const kkExt = fotoKK.name.split('.').pop() || 'webp';
