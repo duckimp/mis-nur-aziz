@@ -3,9 +3,10 @@ import { createServerClient, parseCookieHeader } from '@supabase/ssr';
 import { sendPushNotification } from '../../../lib/onesignal-server';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
+  const supabaseKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY || import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
   const supabase = createServerClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    supabaseKey,
     {
       cookies: {
         getAll() {
@@ -52,11 +53,17 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const heading = isLulus
       ? '🎉 SELAMAT! Pendaftaran Diterima'
       : '📢 Info Seleksi SPMB MIS Nur Aziz';
-    const message = isLulus
-      ? `Selamat! Calon siswa ${data.nama_lengkap} (${data.registration_id}) dinyatakan DITERIMA di MIS Nur Aziz.`
-      : `Pemberitahuan status seleksi pendaftaran an. ${data.nama_lengkap} (${data.registration_id}) telah diperbarui.`;
 
-    // Kirim notifikasi tertarget berdasarkan tag registration_id
+    let message = '';
+    if (isLulus) {
+      message = `Selamat! Calon siswa ${data.nama_lengkap} (${data.registration_id}) dinyatakan DITERIMA di MIS Nur Aziz.`;
+    } else {
+      message = data.catatan_admin
+        ? `Status pendaftaran an. ${data.nama_lengkap} (${data.registration_id}) belum dapat diterima. Catatan: ${data.catatan_admin}`
+        : `Pemberitahuan status seleksi pendaftaran an. ${data.nama_lengkap} (${data.registration_id}) telah diperbarui.`;
+    }
+
+    // Kirim notifikasi tertarget berdasarkan external_id & tag spmb_id
     await sendPushNotification({
       headings: heading,
       contents: message,

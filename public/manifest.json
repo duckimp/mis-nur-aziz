@@ -12,13 +12,13 @@
   "categories": ["education"],
   "icons": [
     {
-      "src": "/images/logo.png",
+      "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/images/logo.png",
+      "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -29,13 +29,13 @@
       "name": "Daftar SPMB",
       "short_name": "SPMB",
       "url": "/spmb",
-      "icons": [{ "src": "/images/logo.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "96x96" }]
     },
     {
       "name": "Cek Status Pendaftaran",
       "short_name": "Cek Status",
       "url": "/spmb/cek-status",
-      "icons": [{ "src": "/images/logo.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "96x96" }]
     }
   ]
 }
