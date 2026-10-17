@@ -118,6 +118,36 @@ const S = {
     transition: 'background 0.15s',
     fontFamily: "'Inter', sans-serif",
   },
+  btnSecondary: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.375rem',
+    padding: '0.625rem 1rem',
+    background: '#f1f5f9',
+    color: '#475569',
+    borderRadius: '10px',
+    border: '1px solid #e2e8f0',
+    fontSize: '0.875rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'background 0.15s',
+    fontFamily: "'Inter', sans-serif",
+  },
+  btnEdit: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.375rem',
+    padding: '0.375rem 0.75rem',
+    background: '#ecfdf5',
+    color: '#059669',
+    borderRadius: '8px',
+    border: '1px solid #a7f3d0',
+    fontSize: '0.8rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'background 0.15s, color 0.15s',
+    fontFamily: "'Inter', sans-serif",
+  },
   table: { width: '100%', borderCollapse: 'collapse' as const },
   thead: { background: '#f8fafc' },
   th: {
@@ -240,14 +270,16 @@ const compressAndConvertToWebp = (file: File, maxWidth = 1200, quality = 0.82): 
 export const NewsManager = () => {
   const [news, setNews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [title, setTitle] = useState('');
-  const [slug, setSlug] = useState('');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [currentImageUrl, setCurrentImageUrl] = useState<string>("");
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [description, setDescription] = useState("");
+  const [date, setDate] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState('');
-  const [userRole, setUserRole] = useState<string>('guru');
+  const [uploadStatus, setUploadStatus] = useState("");
+  const [userRole, setUserRole] = useState<string>("guru");
 
   useEffect(() => {
     fetchUserRole();
@@ -259,94 +291,143 @@ export const NewsManager = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
           .single();
         if (profile) {
-          setUserRole(profile.role || 'guru');
+          setUserRole(profile.role || "guru");
         }
       }
     } catch (e) {}
   };
 
   const fetchNews = async () => {
-    const { data } = await supabase.from('news').select('*').order('created_at', { ascending: false });
+    const { data } = await supabase.from("news").select("*").order("created_at", { ascending: false });
     if (data) setNews(data);
     setLoading(false);
+  };
+
+  const startEdit = (item: any) => {
+    setEditingId(item.id);
+    setTitle(item.title || "");
+    setSlug(item.slug || "");
+    setDescription(item.description || "");
+    setDate(item.date || "");
+    setCurrentImageUrl(item.image_url || "");
+    setImage(null);
+    const fileInput1 = document.getElementById("news-cover-input") as HTMLInputElement;
+    if (fileInput1) fileInput1.value = "";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setTitle("");
+    setSlug("");
+    setDescription("");
+    setDate("");
+    setImage(null);
+    setCurrentImageUrl("");
+    const fileInput1 = document.getElementById("news-cover-input") as HTMLInputElement;
+    if (fileInput1) fileInput1.value = "";
+    const fileInput2 = document.getElementById("news-inline-input") as HTMLInputElement;
+    if (fileInput2) fileInput2.value = "";
   };
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     setUploading(true);
-    setUploadStatus('Mempersiapkan...');
+    setUploadStatus("Mempersiapkan...");
     try {
-      let imageUrl = '';
+      let finalImageUrl = currentImageUrl;
       if (image) {
-        setUploadStatus('Mengompresi & konversi foto sampul ke WebP...');
+        setUploadStatus("Mengompresi & konversi foto sampul ke WebP...");
         const webpBlob = await compressAndConvertToWebp(image);
         
-        setUploadStatus('Mengunggah foto sampul ke storage...');
+        setUploadStatus("Mengunggah foto sampul ke storage...");
         const filePath = `news/${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
         
         const { error: uploadError } = await supabase.storage
-          .from('images')
+          .from("images")
           .upload(filePath, webpBlob, {
-            contentType: 'image/webp'
+            contentType: "image/webp"
           });
           
         if (uploadError) throw uploadError;
-        const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(filePath);
-        imageUrl = publicUrl;
+        const { data: { publicUrl } } = supabase.storage.from("images").getPublicUrl(filePath);
+        finalImageUrl = publicUrl;
       }
       
-      setUploadStatus('Menyimpan data berita...');
       const { data: { user } } = await supabase.auth.getUser();
       const finalSlug = slug || toSlug(title);
-      const { error } = await supabase.from('news').insert([{ title, slug: finalSlug, description, date, image_url: imageUrl, author: user?.email }]);
-      if (error) throw error;
-      setTitle(''); setSlug(''); setDescription(''); setDate(''); setImage(null);
-      
-      const fileInput1 = document.getElementById('news-cover-input') as HTMLInputElement;
-      if (fileInput1) fileInput1.value = '';
-      const fileInput2 = document.getElementById('news-inline-input') as HTMLInputElement;
-      if (fileInput2) fileInput2.value = '';
+
+      if (editingId) {
+        setUploadStatus("Memperbarui data berita...");
+        const { error } = await supabase
+          .from("news")
+          .update({
+            title,
+            slug: finalSlug,
+            description,
+            date,
+            image_url: finalImageUrl,
+          })
+          .eq("id", editingId);
+
+        if (error) throw error;
+        alert("Berita berhasil diperbarui!");
+        cancelEdit();
+      } else {
+        setUploadStatus("Menyimpan data berita...");
+        const { error } = await supabase.from("news").insert([{
+          title,
+          slug: finalSlug,
+          description,
+          date,
+          image_url: finalImageUrl,
+          author: user?.email
+        }]);
+
+        if (error) throw error;
+        alert("Berita berhasil disimpan!");
+        cancelEdit();
+      }
 
       fetchNews();
-      alert('Berita berhasil disimpan!');
     } catch (error: any) {
       alert(error.message);
     } finally {
       setUploading(false);
-      setUploadStatus('');
+      setUploadStatus("");
     }
   };
 
   const handleInlineImageUpload = async (file: File) => {
     if (!file) return;
     setUploading(true);
-    setUploadStatus('Mengompresi & mengunggah gambar ke teks...');
+    setUploadStatus("Mengompresi & mengunggah gambar ke teks...");
     try {
       const webpBlob = await compressAndConvertToWebp(file);
       const filePath = `news/content_${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
       
       const { error: uploadError } = await supabase.storage
-        .from('images')
+        .from("images")
         .upload(filePath, webpBlob, {
-          contentType: 'image/webp'
+          contentType: "image/webp"
         });
         
       if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(filePath);
+      const { data: { publicUrl } } = supabase.storage.from("images").getPublicUrl(filePath);
       
       // Sisipkan tag [img:publicUrl] ke dalam textarea deskripsi
       setDescription(prev => prev + `\n\n[img:${publicUrl}]\n\n`);
-      alert('Gambar berhasil disisipkan ke dalam deskripsi!');
+      alert("Gambar berhasil disisipkan ke dalam deskripsi!");
     } catch (error: any) {
-      alert('Gagal mengunggah gambar: ' + error.message);
+      alert("Gagal mengunggah gambar: " + error.message);
     } finally {
       setUploading(false);
-      setUploadStatus('');
+      setUploadStatus("");
     }
   };
 
@@ -354,10 +435,27 @@ export const NewsManager = () => {
     <div style={S.page}>
       {/* Form */}
       <div style={S.card}>
-        <h3 style={S.cardTitle}>
-          <Pencil size={18} color="#059669" />
-          Input Berita Baru
-        </h3>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem", paddingBottom: "0.75rem", borderBottom: "1px solid #f1f5f9" }}>
+          <h3 style={{ ...S.cardTitle, margin: 0, padding: 0, border: "none" }}>
+            <Pencil size={18} color="#059669" />
+            {editingId ? "Edit Berita" : "Input Berita Baru"}
+          </h3>
+          {editingId && (
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <span style={{ fontSize: "0.75rem", background: "#dcfce7", color: "#15803d", padding: "0.25rem 0.6rem", borderRadius: "20px", fontWeight: 700 }}>
+                Mode Edit
+              </span>
+              <button
+                type="button"
+                onClick={cancelEdit}
+                style={{ ...S.btnSecondary, padding: "0.25rem 0.6rem", fontSize: "0.75rem" }}
+              >
+                Batal Edit
+              </button>
+            </div>
+          )}
+        </div>
+
         <form onSubmit={handleUpload}>
           <div className="admin-grid-2">
             <div style={S.formGroup}>
@@ -365,26 +463,55 @@ export const NewsManager = () => {
                 <FileText size={13} color="#6b7280" />
                 Judul Berita
               </label>
-              <input className="admin-input" style={S.input} type="text" value={title} onChange={e => { setTitle(e.target.value); setSlug(toSlug(e.target.value)); }} placeholder="Masukkan judul berita..." required />
+              <input
+                className="admin-input"
+                style={S.input}
+                type="text"
+                value={title}
+                onChange={e => {
+                  setTitle(e.target.value);
+                  if (!editingId) setSlug(toSlug(e.target.value));
+                }}
+                placeholder="Masukkan judul berita..."
+                required
+              />
             </div>
             <div style={S.formGroup}>
               <label style={S.label}>
                 <Calendar size={13} color="#6b7280" />
                 Tanggal Berita
               </label>
-              <input className="admin-input" style={S.input} type="date" value={date} onChange={e => setDate(e.target.value)} required />
+              <input
+                className="admin-input"
+                style={S.input}
+                type="date"
+                value={date}
+                onChange={e => setDate(e.target.value)}
+                required
+              />
             </div>
           </div>
+
           <div style={S.formGroup}>
             <label style={S.label}>
               <Tag size={13} color="#6b7280" />
-              Slug URL (otomatis)
+              Slug URL
             </label>
-            <input className="admin-input" style={{ ...S.input, fontFamily: 'monospace', fontSize: '0.8rem', color: '#059669' }} type="text" value={slug} onChange={e => setSlug(e.target.value)} placeholder="contoh: momen-upacara-bendera" />
-            <span style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '2px' }}>URL: /berita/<strong style={{ color: '#059669' }}>{slug || 'judul-berita'}</strong></span>
+            <input
+              className="admin-input"
+              style={{ ...S.input, fontFamily: "monospace", fontSize: "0.8rem", color: "#059669" }}
+              type="text"
+              value={slug}
+              onChange={e => setSlug(e.target.value)}
+              placeholder="contoh: momen-upacara-bendera"
+            />
+            <span style={{ fontSize: "0.7rem", color: "#94a3b8", marginTop: "2px" }}>
+              URL: /berita/<strong style={{ color: "#059669" }}>{slug || "judul-berita"}</strong>
+            </span>
           </div>
+
           <div style={S.formGroup}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem" }}>
               <label style={{ ...S.label, margin: 0 }}>
                 <FileText size={13} color="#6b7280" />
                 Deskripsi & Penyisipan Gambar di Tengah Artikel
@@ -394,7 +521,7 @@ export const NewsManager = () => {
                   id="news-inline-input"
                   type="file" 
                   accept="image/*" 
-                  style={{ display: 'none' }} 
+                  style={{ display: "none" }} 
                   onChange={e => {
                     if (e.target.files?.[0]) {
                       handleInlineImageUpload(e.target.files[0]);
@@ -403,31 +530,74 @@ export const NewsManager = () => {
                 />
                 <button 
                   type="button" 
-                  onClick={() => document.getElementById('news-inline-input')?.click()}
-                  style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '0.25rem 0.6rem', fontSize: '0.72rem', fontWeight: 600, color: '#334155', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                  onClick={() => document.getElementById("news-inline-input")?.click()}
+                  style={{ background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: "6px", padding: "0.25rem 0.6rem", fontSize: "0.72rem", fontWeight: 600, color: "#334155", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}
                 >
                   <Upload size={12} color="#059669" /> + Sisip Foto ke Teks
                 </button>
               </div>
             </div>
-            <textarea className="admin-textarea" style={{ ...S.textarea, minHeight: '180px' }} value={description} onChange={e => setDescription(e.target.value)} placeholder="Tulis paragraf 1... Klik '+ Sisip Foto ke Teks' untuk menyisipkan gambar di sini, lalu lanjutkan paragraf berikutnya..." required />
-            <span style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '3px', display: 'block' }}>
-              💡 Tips: Tag <code style={{ color: '#059669', background: '#f8fafc', padding: '0.1rem 0.3rem', borderRadius: '4px' }}>[img:https://...]</code> akan otomatis dirender menjadi foto profesional di tengah artikel.
+            <textarea
+              className="admin-textarea"
+              style={{ ...S.textarea, minHeight: "180px" }}
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder="Tulis paragraf 1... Klik tombol Sisip Foto ke Teks untuk menyisipkan gambar di sini, lalu lanjutkan paragraf berikutnya..."
+              required
+            />
+            <span style={{ fontSize: "0.7rem", color: "#94a3b8", marginTop: "3px", display: "block" }}>
+              💡 Tips: Tag <code style={{ color: "#059669", background: "#f8fafc", padding: "0.1rem 0.3rem", borderRadius: "4px" }}>[img:https://...]</code> akan otomatis dirender menjadi foto profesional di tengah artikel.
             </span>
           </div>
+
           <div style={S.formGroup}>
             <label style={S.label}>
               <Paperclip size={13} color="#6b7280" />
-              Foto Sampul (Thumbnail Utama)
+              Foto Sampul (Thumbnail Utama) {editingId && <span style={{ fontWeight: 400, color: "#64748b" }}>(Biarkan kosong jika tetap menggunakan foto lama)</span>}
             </label>
-            <input id="news-cover-input" style={S.fileInput} type="file" accept="image/*" onChange={e => setImage(e.target.files?.[0] || null)} required />
+            {editingId && currentImageUrl && (
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem", padding: "0.5rem 0.75rem", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                <img src={currentImageUrl} alt="Sampul saat ini" style={{ width: "48px", height: "48px", objectFit: "cover", borderRadius: "6px" }} />
+                <span style={{ fontSize: "0.75rem", color: "#64748b" }}>Foto sampul tersimpan. Unggah foto baru di bawah ini hanya jika ingin menggantinya.</span>
+              </div>
+            )}
+            <input
+              id="news-cover-input"
+              style={S.fileInput}
+              type="file"
+              accept="image/*"
+              onChange={e => setImage(e.target.files?.[0] || null)}
+              required={!editingId && !currentImageUrl}
+            />
           </div>
-          <button type="submit" disabled={uploading} style={{ ...S.btnPrimary, opacity: uploading ? 0.6 : 1 }} className="admin-btn">
-            {uploading
-              ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> {uploadStatus}</>
-              : <><Save size={15} /> Simpan Berita</>
-            }
-          </button>
+
+          <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+            <button
+              type="submit"
+              disabled={uploading}
+              style={{ ...S.btnPrimary, opacity: uploading ? 0.6 : 1 }}
+              className="admin-btn"
+            >
+              {uploading ? (
+                <><Loader2 size={15} style={{ animation: "spin 1s linear infinite" }} /> {uploadStatus}</>
+              ) : editingId ? (
+                <><Save size={15} /> Simpan Perubahan</>
+              ) : (
+                <><Save size={15} /> Simpan Berita</>
+              )}
+            </button>
+            {editingId && (
+              <button
+                type="button"
+                onClick={cancelEdit}
+                disabled={uploading}
+                style={S.btnSecondary}
+                className="admin-btn"
+              >
+                Batal Edit
+              </button>
+            )}
+          </div>
         </form>
       </div>
 
@@ -460,23 +630,43 @@ export const NewsManager = () => {
                   </td>
                 </tr>
               ) : news.map(item => (
-                <tr key={item.id}>
-                  <td style={S.td} data-label="Judul">{item.title}</td>
+                <tr key={item.id} style={editingId === item.id ? { background: "#f0fdf4" } : undefined}>
+                  <td style={S.td} data-label="Judul">
+                    <div style={{ fontWeight: 600, color: "#1e293b" }}>{item.title}</div>
+                    {item.slug && <span style={{ fontSize: "0.725rem", color: "#059669" }}>/berita/{item.slug}</span>}
+                  </td>
                   <td style={S.td} data-label="Tanggal">{item.date}</td>
-                  <td style={S.td} data-label="Input Oleh"><span style={{ fontSize: '0.8rem', color: '#64748b' }}>{item.author}</span></td>
+                  <td style={S.td} data-label="Input Oleh"><span style={{ fontSize: "0.8rem", color: "#64748b" }}>{item.author}</span></td>
                   <td style={S.td} data-label="Aksi">
-                    {userRole === 'admin' ? (
-                      <button style={S.btnDanger} onClick={async () => {
-                        if (confirm('Hapus berita ini?')) {
-                          await supabase.from('news').delete().eq('id', item.id);
-                          fetchNews();
-                        }
-                      }} className="admin-btn-action">
-                        <Trash2 size={13} /> Hapus
+                    <div style={{ display: "flex", gap: "0.4rem", alignItems: "center", flexWrap: "wrap" }}>
+                      {/* Tombol Edit: Tersedia untuk Admin dan Guru */}
+                      <button
+                        style={S.btnEdit}
+                        onClick={() => startEdit(item)}
+                        className="admin-btn-action"
+                        title="Edit Berita"
+                      >
+                        <Edit2 size={13} /> Edit
                       </button>
-                    ) : (
-                      <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic' }}>No Access</span>
-                    )}
+
+                      {/* Tombol Hapus: Tersedia untuk Admin */}
+                      {userRole === "admin" ? (
+                        <button
+                          style={S.btnDanger}
+                          onClick={async () => {
+                            if (confirm(`Hapus berita "${item.title}"?`)) {
+                              await supabase.from("news").delete().eq("id", item.id);
+                              if (editingId === item.id) cancelEdit();
+                              fetchNews();
+                            }
+                          }}
+                          className="admin-btn-action"
+                          title="Hapus Berita"
+                        >
+                          <Trash2 size={13} /> Hapus
+                        </button>
+                      ) : null}
+                    </div>
                   </td>
                 </tr>
               ))}
