@@ -134,7 +134,7 @@ export default function SPMBForm({ settings }: Props) {
         </div>
         <h2>Pendaftaran Belum Dibuka</h2>
         <p>Pendaftaran SPMB Tahun Ajaran {settings.tahun_ajaran} saat ini belum dibuka atau telah ditutup.</p>
-        <a href="/ppdb" className="btn-spmb btn-secondary-spmb">Kembali ke Info PPDB</a>
+        <a href="/spmb" className="btn-spmb btn-secondary-spmb">Kembali ke Info SPMB</a>
       </div>
     );
   }

@@ -1,13 +1,27 @@
 ---
 const navItems = [
-  { name: 'Beranda', href: '/' },
-  { name: 'Profil', href: '/profil' },
-  { name: 'Akademik', href: '/akademik' },
-  { name: 'Berita', href: '/berita' },
-  { name: 'Guru & Staff', href: '/guru' },
-  { name: 'Galeri', href: '/galeri' },
-  { name: 'SPMB/PPDB', href: '/ppdb' },
-  { name: 'Kontak', href: '/kontak' },
+  { name: "Beranda", href: "/" },
+  { name: "Profil", href: "/profil" },
+  { name: "Akademik", href: "/akademik" },
+  { name: "Berita", href: "/berita" },
+  {
+    name: "Guru & Staff",
+    children: [
+      {
+        name: "Daftar Guru & Staff",
+        href: "/guru",
+      },
+      {
+        name: "Absensi Guru",
+        href: "https://si-aziz.vercel.app",
+        target: "_blank",
+        isExternal: true,
+      },
+    ],
+  },
+  { name: "Galeri", href: "/galeri" },
+  { name: "SPMB", href: "/spmb" },
+  { name: "Kontak", href: "/kontak" },
 ];
 ---
 
@@ -26,13 +40,49 @@ const navItems = [
 
     <nav class="nav-links" id="nav-links">
       {navItems.map(item => (
-        <a href={item.href} class="nav-item">{item.name}</a>
+        item.children ? (
+          <div class="nav-dropdown" id="guru-dropdown">
+            <button
+              type="button"
+              class="nav-item nav-dropdown-btn"
+              id="guru-dropdown-btn"
+              aria-expanded="false"
+              aria-haspopup="true"
+            >
+              <span>{item.name}</span>
+              <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+            <div class="dropdown-menu" id="guru-dropdown-menu">
+              {item.children.map(child => (
+                <a
+                  href={child.href}
+                  class="dropdown-link"
+                  target={child.target || undefined}
+                  rel={child.isExternal ? "noopener noreferrer" : undefined}
+                >
+                  <span>{child.name}</span>
+                  {child.isExternal && (
+                    <svg class="external-icon" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                      <polyline points="15 3 21 3 21 9"/>
+                      <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                  )}
+                </a>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <a href={item.href} class="nav-item">{item.name}</a>
+        )
       ))}
       <button id="open-login-modal" class="btn-login-nav" aria-label="Login Admin">
         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
         Login
       </button>
-      <a href="/ppdb" class="btn btn-primary nav-cta">Daftar Sekarang</a>
+      <a href="/spmb" class="btn btn-primary nav-cta">Daftar Sekarang</a>
     </nav>
   </div>
 </header>
@@ -60,7 +110,7 @@ const navItems = [
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-family: 'Outfit', sans-serif;
+    font-family: "Outfit", sans-serif;
     font-size: 1.2rem;
     font-weight: 800;
     color: var(--primary);
@@ -83,6 +133,9 @@ const navItems = [
     color: var(--text-muted);
     font-size: 0.875rem;
     position: relative;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: inherit;
   }
 
   .nav-item:hover, .nav-item.active {
@@ -90,7 +143,7 @@ const navItems = [
   }
 
   .nav-item::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -5px;
     left: 0;
@@ -100,10 +153,125 @@ const navItems = [
     transition: var(--transition);
   }
 
-  .nav-item:hover::after {
+  .nav-item:hover::after, .nav-item.active::after {
     width: 100%;
   }
 
+  /* ── Dropdown Styles (Clean & Minimalist) ── */
+  .nav-dropdown {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .nav-dropdown-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+
+  .chevron-icon {
+    transition: transform 0.25s ease, color 0.2s ease;
+    color: var(--text-muted);
+  }
+
+  .nav-dropdown:hover .chevron-icon,
+  .nav-dropdown.active .chevron-icon,
+  .nav-dropdown.open .chevron-icon {
+    transform: rotate(180deg);
+    color: var(--primary);
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 14px);
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 0.35rem;
+    min-width: 185px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.03);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  /* Triangle pointer */
+  .dropdown-menu::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 12px;
+    height: 12px;
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    border-left: 1px solid #e2e8f0;
+  }
+
+  /* Invisible hover bridge */
+  .nav-dropdown::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 16px;
+  }
+
+  .nav-dropdown:hover .dropdown-menu,
+  .nav-dropdown:focus-within .dropdown-menu,
+  .nav-dropdown.open .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .dropdown-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.55rem 0.85rem;
+    border-radius: 8px;
+    color: var(--text-main);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .dropdown-link:hover {
+    background: #f0fdf4;
+    color: var(--primary);
+  }
+
+  .dropdown-link.active {
+    background: #f0fdf4;
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .external-icon {
+    opacity: 0.5;
+    color: currentColor;
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+  }
+
+  /* ── Buttons ── */
   .btn-login-nav {
     display: inline-flex;
     align-items: center;
@@ -116,7 +284,7 @@ const navItems = [
     font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     transition: all 0.2s ease;
   }
 
@@ -150,7 +318,7 @@ const navItems = [
     transition: var(--transition);
   }
 
-  /* Hamburger transformation into 'X' */
+  /* Hamburger transformation into X */
   .mobile-menu-btn.active span:nth-child(1) {
     transform: translateY(8px) rotate(45deg);
   }
@@ -174,14 +342,16 @@ const navItems = [
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       flex-direction: column;
-      padding: 2rem;
-      gap: 1.25rem;
+      padding: 1.5rem 1.75rem 2rem;
+      gap: 1.1rem;
       box-shadow: var(--shadow-lg);
       border-bottom: 1px solid rgba(0, 0, 0, 0.08);
       transform: translateY(-150%);
       transition: var(--transition);
       opacity: 0;
       z-index: 999;
+      max-height: calc(100vh - 60px);
+      overflow-y: auto;
     }
 
     .nav-links.active {
@@ -191,6 +361,55 @@ const navItems = [
 
     .mobile-menu-btn {
       display: flex;
+    }
+
+    /* Mobile Dropdown Clean */
+    .nav-dropdown {
+      width: 100%;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .nav-dropdown-btn {
+      width: auto;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.875rem;
+      padding: 0.25rem 0;
+    }
+
+    .dropdown-menu {
+      position: static;
+      transform: none !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
+      width: auto;
+      min-width: 210px;
+      box-shadow: none;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 0.35rem;
+      margin: 0.4rem auto 0;
+      display: none;
+    }
+
+    .dropdown-menu::before {
+      display: none;
+    }
+
+    .nav-dropdown.open .dropdown-menu {
+      display: flex;
+    }
+
+    .dropdown-link {
+      padding: 0.55rem 0.85rem;
+      font-size: 0.85rem;
+      justify-content: center;
+      gap: 0.4rem;
     }
 
     .nav-links .btn-login-nav {
@@ -213,7 +432,8 @@ const navItems = [
     /* Staggered entrance animation for items when active */
     .nav-links .nav-item, 
     .nav-links .btn-login-nav, 
-    .nav-links .nav-cta {
+    .nav-links .nav-cta,
+    .nav-links .nav-dropdown {
       opacity: 0;
       transform: translateY(10px);
       transition: opacity 0.3s ease, transform 0.3s ease;
@@ -221,68 +441,85 @@ const navItems = [
 
     .nav-links.active .nav-item,
     .nav-links.active .btn-login-nav,
-    .nav-links.active .nav-cta {
+    .nav-links.active .nav-cta,
+    .nav-links.active .nav-dropdown {
       opacity: 1;
       transform: translateY(0);
     }
-
-    .nav-links.active .nav-item:nth-child(1) { transition-delay: 0.05s; }
-    .nav-links.active .nav-item:nth-child(2) { transition-delay: 0.1s; }
-    .nav-links.active .nav-item:nth-child(3) { transition-delay: 0.15s; }
-    .nav-links.active .nav-item:nth-child(4) { transition-delay: 0.2s; }
-    .nav-links.active .nav-item:nth-child(5) { transition-delay: 0.25s; }
-    .nav-links.active .nav-item:nth-child(6) { transition-delay: 0.3s; }
-    .nav-links.active .nav-item:nth-child(7) { transition-delay: 0.35s; }
-    .nav-links.active .nav-item:nth-child(8) { transition-delay: 0.4s; }
-    .nav-links.active .btn-login-nav { transition-delay: 0.45s; }
-    .nav-links.active .nav-cta { transition-delay: 0.5s; }
   }
 </style>
 
 <script>
-  const btn = document.getElementById('mobile-menu-btn');
-  const nav = document.getElementById('nav-links');
+  const btn = document.getElementById("mobile-menu-btn");
+  const nav = document.getElementById("nav-links");
+  const guruDropdown = document.getElementById("guru-dropdown");
+  const guruBtn = document.getElementById("guru-dropdown-btn");
 
-  btn?.addEventListener('click', () => {
-    nav?.classList.toggle('active');
-    btn.classList.toggle('active');
+  // Mobile menu toggle
+  btn?.addEventListener("click", () => {
+    nav?.classList.toggle("active");
+    btn.classList.toggle("active");
   });
 
-  // Close menu on click outside
-  document.addEventListener('click', (event) => {
+  // Dropdown toggle on click (for mobile and touch devices)
+  guruBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = guruDropdown?.classList.toggle("open");
+    guruBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  });
+
+  // Close dropdown on click outside
+  document.addEventListener("click", (event) => {
     const isClickInsideNav = nav?.contains(event.target as Node);
     const isClickInsideBtn = btn?.contains(event.target as Node);
-    if (!isClickInsideNav && !isClickInsideBtn && nav?.classList.contains('active')) {
-      nav.classList.remove('active');
-      btn?.classList.remove('active');
+    if (!isClickInsideNav && !isClickInsideBtn && nav?.classList.contains("active")) {
+      nav.classList.remove("active");
+      btn?.classList.remove("active");
+    }
+
+    const isClickInsideDropdown = guruDropdown?.contains(event.target as Node);
+    if (!isClickInsideDropdown && guruDropdown?.classList.contains("open")) {
+      guruDropdown.classList.remove("open");
+      guruBtn?.setAttribute("aria-expanded", "false");
     }
   });
 
-  // Close menu when clicking any nav item or button inside it
-  const menuLinks = nav?.querySelectorAll('.nav-item, .btn-login-nav, .nav-cta');
+  // Close menu when clicking nav items or buttons (except dropdown trigger)
+  const menuLinks = nav?.querySelectorAll(".nav-item:not(.nav-dropdown-btn), .btn-login-nav, .nav-cta, .dropdown-link");
   menuLinks?.forEach(link => {
-    link.addEventListener('click', () => {
-      nav?.classList.remove('active');
-      btn?.classList.remove('active');
+    link.addEventListener("click", () => {
+      nav?.classList.remove("active");
+      btn?.classList.remove("active");
+      guruDropdown?.classList.remove("open");
+      guruBtn?.setAttribute("aria-expanded", "false");
     });
   });
 
   // Highlight active link
   const currentPath = window.location.pathname;
-  const navLinks = document.querySelectorAll('.nav-item');
+  const navLinks = document.querySelectorAll(".nav-item");
   navLinks.forEach(link => {
-    if (link.getAttribute('href') === currentPath) {
-      link.classList.add('active');
+    if (link.getAttribute("href") === currentPath) {
+      link.classList.add("active");
+    }
+  });
+
+  // Highlight active dropdown link & trigger
+  const dropdownLinks = document.querySelectorAll(".dropdown-link");
+  dropdownLinks.forEach(link => {
+    if (link.getAttribute("href") === currentPath) {
+      link.classList.add("active");
+      guruBtn?.classList.add("active");
     }
   });
 
   // Open login modal
-  document.getElementById('open-login-modal')?.addEventListener('click', () => {
-    const modal = document.getElementById('login-modal');
+  document.getElementById("open-login-modal")?.addEventListener("click", () => {
+    const modal = document.getElementById("login-modal");
     if (modal) {
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-      setTimeout(() => document.getElementById('login-email')?.focus(), 100);
+      modal.classList.add("active");
+      document.body.style.overflow = "hidden";
+      setTimeout(() => document.getElementById("login-email")?.focus(), 100);
     }
   });
 </script>

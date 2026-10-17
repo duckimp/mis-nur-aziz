@@ -12,7 +12,7 @@ export const GET: APIRoute = async () => {
     '/guru',
     '/berita',
     '/galeri',
-    '/ppdb',
+    '/spmb',
     '/kontak',
   ];
 
