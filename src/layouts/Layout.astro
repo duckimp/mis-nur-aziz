@@ -24,7 +24,7 @@ const {
 } = Astro.props;
 
 const siteUrl = 'https://mis-nur-aziz.vercel.app';
-const resolvedOgImage = ogImage || `${siteUrl}/images/logo.png`;
+const resolvedOgImage = ogImage || `${siteUrl}/images/logo.webp`;
 const resolvedOgUrl = ogUrl || siteUrl;
 
 // Ekstrak domain Supabase secara dinamis untuk preconnect
@@ -43,7 +43,7 @@ try {
 		<meta charset="UTF-8" />
 		<meta name="description" content={description} />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="icon" type="image/png" href="/images/logo.png" />
+		<link rel="icon" type="image/webp" href="/images/logo.webp" />
 		<!-- Generator meta removed for security & AI detection reduction -->
 		<meta name="generator" content="MIS Nur Aziz" />
 		<title>{title} | MIS Nur Aziz</title>
@@ -105,7 +105,7 @@ try {
 			"name": "MIS Nur Aziz",
 			"description": "Madrasah Ibtidaiyah Swasta Nur Aziz - Sekolah Dasar Islam Berprestasi dan Berakhlak Mulia",
 			"url": siteUrl,
-			"logo": `${siteUrl}/images/logo.png`,
+			"logo": `${siteUrl}/images/logo.webp`,
 			"sameAs": [],
 			"address": {
 				"@type": "PostalAddress",
@@ -195,7 +195,7 @@ try {
 
 					<!-- Header -->
 					<div class="modal-header">
-						<img src="/images/logo.png" alt="Logo MIS Nur Aziz" class="modal-logo" />
+						<img src="/images/logo.webp" alt="Logo MIS Nur Aziz" class="modal-logo" />
 						<h2 id="modal-title">Admin Login</h2>
 						<p>Masuk ke panel manajemen sekolah</p>
 					</div>
