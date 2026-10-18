@@ -2131,3 +2131,16 @@ img {
     font-size: 0.92rem;
   }
 }
+
+/* ═══ Admin Bar — Navbar & Content Offset ═══════════════════════════════════
+   Saat body.has-admin-bar aktif (user sudah login), navbar turun 36px
+   agar tidak tertimpa admin bar yang fixed di atas.
+   ══════════════════════════════════════════════════════════════════════════ */
+body.has-admin-bar nav {
+  top: 36px !important;
+}
+
+/* Search bar sticky di halaman berita juga ikut turun */
+body.has-admin-bar .search-sticky {
+  top: calc(60px + 36px) !important;
+}

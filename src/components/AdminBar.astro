@@ -1,0 +1,213 @@
+---
+/**
+ * AdminBar.astro
+ * Bar tipis di atas semua halaman publik — hanya tampil jika user sudah login.
+ * Menampilkan: role, nama/email, tombol "Ke Dashboard", dan tombol Logout.
+ */
+---
+
+<!-- Admin Bar: hidden by default, shown via JS after session check -->
+<div id="admin-bar" style="display:none;" aria-label="Admin Toolbar">
+  <div class="ab-inner">
+    <div class="ab-left">
+      <span class="ab-dot"></span>
+      <span class="ab-role-badge ab-role-admin" id="ab-role-badge">Admin</span>
+      <span class="ab-name" id="ab-name">–</span>
+    </div>
+    <div class="ab-right">
+      <a href="/admin/dashboard" class="ab-btn ab-btn-dash">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/>
+          <rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
+        </svg>
+        Dashboard
+      </a>
+      <button class="ab-btn ab-btn-logout" id="ab-logout-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>
+        </svg>
+        Keluar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (async () => {
+    try {
+      const { supabase } = await import('../lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const bar   = document.getElementById('admin-bar');
+      const name  = document.getElementById('ab-name');
+      const badge = document.getElementById('ab-role-badge');
+
+      if (!bar) return;
+
+      // Ambil nama & role dari metadata
+      const meta     = session.user.user_metadata;
+      const email    = session.user.email ?? '';
+      const fullName = meta?.full_name || meta?.name || email.split('@')[0];
+      const role     = meta?.role || 'admin';
+
+      if (name)  name.textContent = fullName;
+      if (badge) {
+        badge.textContent = role === 'guru' ? 'Guru' : 'Admin';
+        if (role === 'guru') {
+          badge.classList.remove('ab-role-admin');
+          badge.classList.add('ab-role-guru');
+        }
+      }
+
+      // Tambahkan class ke body supaya navbar turun
+      document.body.classList.add('has-admin-bar');
+      bar.style.display = 'block';
+
+      // Logout handler
+      document.getElementById('ab-logout-btn')?.addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        document.body.classList.remove('has-admin-bar');
+        bar.style.display = 'none';
+        window.location.reload();
+      });
+
+    } catch (e) {
+      // Tidak ada session — bar tetap tersembunyi
+    }
+  })();
+</script>
+
+<style>
+  #admin-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10000;
+    height: 36px;
+    background: linear-gradient(90deg, #064e3b 0%, #065f46 60%, #047857 100%);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 1px 8px rgba(0,0,0,0.18);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+  }
+
+  .ab-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.25rem;
+    gap: 1rem;
+  }
+
+  /* Left */
+  .ab-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .ab-dot {
+    width: 7px;
+    height: 7px;
+    background: #34d399;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 5px #34d399aa;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.7; transform: scale(1.3); }
+  }
+
+  .ab-role-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .ab-role-admin {
+    background: rgba(52, 211, 153, 0.18);
+    color: #6ee7b7;
+    border: 1px solid rgba(52, 211, 153, 0.3);
+  }
+
+  .ab-role-guru {
+    background: rgba(251, 191, 36, 0.15);
+    color: #fcd34d;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+  }
+
+  .ab-name {
+    color: rgba(255,255,255,0.75);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+
+  /* Right */
+  .ab-right {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+
+  .ab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    border: none;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .ab-btn-dash {
+    background: rgba(255,255,255,0.12);
+    color: #ffffff;
+    border: 1px solid rgba(255,255,255,0.18);
+  }
+
+  .ab-btn-dash:hover {
+    background: rgba(255,255,255,0.22);
+    transform: translateY(-1px);
+  }
+
+  .ab-btn-logout {
+    background: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+  }
+
+  .ab-btn-logout:hover {
+    background: rgba(239, 68, 68, 0.28);
+    color: #fecaca;
+    transform: translateY(-1px);
+  }
+
+  /* Mobile: sembunyikan nama */
+  @media (max-width: 480px) {
+    .ab-name { display: none; }
+    .ab-btn  { padding: 0.22rem 0.5rem; font-size: 0.72rem; }
+  }
+</style>
