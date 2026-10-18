@@ -65,11 +65,17 @@
       document.body.classList.add('has-admin-bar');
       bar.style.display = 'block';
 
+      // Paksa langsung geser navbar via inline style (hindari FOUC)
+      const navbar = document.querySelector('.navbar') as HTMLElement | null;
+      if (navbar) navbar.style.top = '36px';
+
       // Logout handler
       document.getElementById('ab-logout-btn')?.addEventListener('click', async () => {
         await supabase.auth.signOut();
         document.body.classList.remove('has-admin-bar');
         bar.style.display = 'none';
+        const navbarEl = document.querySelector('.navbar') as HTMLElement | null;
+        if (navbarEl) navbarEl.style.top = '';
         window.location.reload();
       });
 

@@ -2136,8 +2136,13 @@ img {
    Saat body.has-admin-bar aktif (user sudah login), navbar turun 36px
    agar tidak tertimpa admin bar yang fixed di atas.
    ══════════════════════════════════════════════════════════════════════════ */
-body.has-admin-bar nav {
+body.has-admin-bar .navbar {
   top: 36px !important;
+}
+
+/* Mobile nav drawer juga ikut turun */
+body.has-admin-bar .nav-mobile-menu {
+  top: calc(60px + 36px) !important;
 }
 
 /* Search bar sticky di halaman berita juga ikut turun */
