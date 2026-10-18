@@ -69,6 +69,10 @@
       const navbar = document.querySelector('.navbar') as HTMLElement | null;
       if (navbar) navbar.style.top = '36px';
 
+      // Geser notification banner agar tidak tertimpa navbar
+      const notifBar = document.querySelector('.notif-bar') as HTMLElement | null;
+      if (notifBar) notifBar.style.marginTop = '96px'; // 36px admin bar + 60px navbar
+
       // Logout handler
       document.getElementById('ab-logout-btn')?.addEventListener('click', async () => {
         await supabase.auth.signOut();
@@ -76,6 +80,8 @@
         bar.style.display = 'none';
         const navbarEl = document.querySelector('.navbar') as HTMLElement | null;
         if (navbarEl) navbarEl.style.top = '';
+        const notifEl = document.querySelector('.notif-bar') as HTMLElement | null;
+        if (notifEl) notifEl.style.marginTop = '';
         window.location.reload();
       });
 

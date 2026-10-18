@@ -2140,9 +2140,14 @@ body.has-admin-bar .navbar {
   top: 36px !important;
 }
 
-/* Mobile nav drawer juga ikut turun */
-body.has-admin-bar .nav-mobile-menu {
-  top: calc(60px + 36px) !important;
+/* Mobile nav drawer max-height saat admin bar aktif */
+body.has-admin-bar .nav-links {
+  max-height: calc(100vh - 96px) !important;
+}
+
+/* Notification banner turun (36px adminbar + 60px navbar) */
+body.has-admin-bar .notif-bar {
+  margin-top: 96px !important;
 }
 
 /* Search bar sticky di halaman berita juga ikut turun */
