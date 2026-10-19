@@ -1,0 +1,8 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import AlumniManager from '../../components/admin/AlumniManager';
+---
+
+<AdminLayout title="Tracer Study & Alumni" activeMenu="Alumni">
+  <AlumniManager client:load />
+</AdminLayout>

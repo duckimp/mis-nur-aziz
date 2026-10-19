@@ -1,0 +1,64 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AlumniPublicPortal from '../components/alumni/AlumniPublicPortal';
+---
+
+<Layout title="Tracer Study & Jejak Alumni" description="Penelusuran jejak studi lanjutan lulusan MIS Nur Aziz ke jenjang MTs, SMP, dan Pondok Pesantren.">
+	<section class="page-header section">
+		<div class="container animate-up">
+			<span class="badge">Jejak Lulusan</span>
+			<h1>Tracer Study Alumni</h1>
+			<p>Menelusuri jejak keberhasilan studi lanjutan alumni MIS Nur Aziz ke jenjang MTs, SMP, dan Pondok Pesantren.</p>
+		</div>
+	</section>
+
+	<section class="alumni-portal-section section">
+		<div class="container">
+			<AlumniPublicPortal client:load />
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.page-header {
+		padding-top: 150px;
+		background: linear-gradient(135deg, rgba(6, 78, 59, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+		text-align: center;
+		position: relative;
+	}
+
+	.page-header h1 {
+		font-size: 2.75rem;
+		font-weight: 800;
+		color: var(--primary);
+		margin-top: 0.5rem;
+		margin-bottom: 1rem;
+		font-family: 'Outfit', sans-serif;
+	}
+
+	.page-header p {
+		color: var(--text-muted);
+		max-width: 650px;
+		margin: 0 auto;
+		font-size: 1.1rem;
+		line-height: 1.6;
+	}
+
+	.alumni-portal-section {
+		padding: 2.5rem 0 5rem;
+	}
+
+	@media (max-width: 768px) {
+		.page-header {
+			padding-top: 130px;
+		}
+
+		.page-header h1 {
+			font-size: 2rem;
+		}
+
+		.page-header p {
+			font-size: 0.95rem;
+		}
+	}
+</style>

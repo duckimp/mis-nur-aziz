@@ -591,7 +591,7 @@ export default function SPMBForm({ settings }: Props) {
                 pattern="[0-9]*"
                 value={phoneNum}
                 onChange={handlePhoneChange}
-                placeholder="85694841807"
+                placeholder="8512345678"
                 className={`phone-number-input ${fieldErrors.nomor_wa ? "error" : ""}`}
                 required
               />
