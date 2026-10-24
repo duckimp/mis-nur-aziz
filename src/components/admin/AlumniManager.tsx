@@ -511,11 +511,24 @@ export default function AlumniManager() {
                       </td>
                       <td>
                         <a
-                          href={`https://wa.me/${cleanWa}`}
+                          href={(() => {
+                            const originUrl = typeof window !== 'undefined' ? window.location.origin : 'https://mis-nuraziz.sch.id';
+                            const waMsg = encodeURIComponent(
+                              "Assalamu'alaikum wr. wb.\n\n" +
+                              'Halo ananda *' + (r.nama_lengkap || 'Alumni') + '* (atau Bapak/Ibu wali murid), kami dari Admin MIS Nur Aziz.\n\n' +
+                              'Terima kasih telah mengisi Tracer Study Lulusan MIS Nur Aziz (Angkatan ' + r.tahun_lulus + '). Data yang kami terima, ananda terdata melanjutkan ke:\n' +
+                              '\uD83C\uDFEB *' + (r.nama_sekolah_lanjutan || '-') + '* (' + (r.kabupaten_kota || '') + ')\n\n' +
+                              'Mohon periksa kembali apakah data di atas sudah benar. Jika ada kesalahan, ananda dapat mengoreksinya di:\n' +
+                              '\uD83D\uDC49 ' + originUrl + "/alumni (Tab 'Cek & Edit Data')\n\n" +
+                              'Atau balas pesan ini dengan data yang benar. Terima kasih.\n\n' +
+                              "Wassalamu'alaikum wr. wb."
+                            );
+                            return `https://wa.me/${cleanWa}?text=${waMsg}`;
+                          })()}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="btn-wa-pill"
-                          title="Hubungi via WhatsApp"
+                          title="Chat WA Konfirmasi / Koreksi Data"
                         >
                           <IconWhatsApp size={13} />
                           <span>+{cleanWa}</span>
@@ -666,7 +679,31 @@ export default function AlumniManager() {
                 </div>
 
                 <div className="form-field">
-                  <label>Nomor WhatsApp</label>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem" }}>
+                    <label style={{ margin: 0 }}>Nomor WhatsApp</label>
+                    {selectedRecord.nomor_wa && (
+                      <a
+                        href={`https://wa.me/${(selectedRecord.nomor_wa || "").replace(/\D/g, "")}?text=${encodeURIComponent(
+                          "Assalamu'alaikum wr. wb.\n\n" +
+                          "Halo ananda *" + (selectedRecord.nama_lengkap || "Alumni") + "* (atau Bapak/Ibu wali murid), kami dari Admin MIS Nur Aziz.\n\n" +
+                          "Terima kasih telah mengisi Tracer Study Lulusan MIS Nur Aziz (Angkatan " + selectedRecord.tahun_lulus + "). Berdasarkan data formulir yang kami terima, ananda terdata melanjutkan ke:\n" +
+                          "🏫 *" + (selectedRecord.nama_sekolah_lanjutan || "-") + "* (" + (selectedRecord.kabupaten_kota || "") + ")\n\n" +
+                          "Mohon periksa kembali apakah data di atas sudah benar. Jika ada kesalahan atau ingin mengoreksi data, ananda dapat memperbaruinya di website madrasah:\n" +
+                          "👉 " + (typeof window !== "undefined" ? window.location.origin : "https://mis-nuraziz.sch.id") + "/alumni (Pilih tab 'Cek & Edit Data')\n\n" +
+                          "Atau bisa juga langsung membalas pesan ini dengan data perbaikan yang benar. Terima kasih.\n\n" +
+                          "Wassalamu'alaikum wr. wb."
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-wa-pill"
+                        style={{ fontSize: "0.74rem", padding: "2px 8px" }}
+                        title="Chat WhatsApp untuk Meminta Koreksi Data"
+                      >
+                        <IconWhatsApp size={12} />
+                        <span>Chat Koreksi</span>
+                      </a>
+                    )}
+                  </div>
                   <input
                     type="tel"
                     inputMode="numeric"
